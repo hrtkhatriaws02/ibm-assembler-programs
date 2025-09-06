@@ -1,0 +1,5 @@
+WELPGM1  CSECT                                   START OF CONTROL SEC   00010000
+         WTO   'WELCOME TO ASSEMBLER TRAINING'   MSG TO CONSOLE         00020000
+         BR    14                                RETURN TO CALLER       00021000
+         END                                                            00030000
+

@@ -1,0 +1,42 @@
+GETPUT   CSECT                                                          00010000
+************                                                            00020000
+* READ MSG FROM INPUT DATA STREAM AND DISPLAY INTO OP STREAM *          00030000
+************                                                            00040000
+         STM   14,12,12(13)                                             00050000
+         BALR  12,0                                                     00060000
+         USING *,12                                                     00070000
+         ST    13,SAVE+4                                                00080000
+         LA    13,SAVE                                                  00090000
+****************                                                        00100000
+* OPEN INPUT DATA FILE AND STANDARD PRINTER FILE    *                   00110000
+****************                                                        00120000
+         OPEN  (INFILE1,(INPUT))                                        00130000
+         OPEN  (OUTFILE1,(OUTPUT))                                      00140000
+*******************                                                     00150000
+*      READ AND PRINT EACH RECORD                                       00160000
+*******************                                                     00170000
+RLOOP    MVC   INAREA,=80C' '                                           00180003
+         GET   INFILE1,INAREA                                           00190003
+         MVC   OUTMSG2,INAREA                                           00200000
+         PUT   OUTFILE1,OUTAREA                                         00210000
+         B     RLOOP                                                    00220000
+*******************                                                     00230000
+INEOF    CLOSE (INFILE1)                                                00240000
+         CLOSE (OUTFILE1)                                               00250000
+EXIT     L     13,SAVE+4                                                00260000
+         RETURN (14,12),RC=0                                            00280000
+***************                                                         00290000
+INFILE1  DCB   DSORG=PS,MACRF=(GM),DDNAME=DDIN,EODAD=INEOF,            *00300000
+               RECFM=FB,BLKSIZE=800,LRECL=80                            00310002
+OUTFILE1 DCB   DSORG=PS,MACRF=(PM),DDNAME=DDOUT,                       *00320000
+               RECFM=FBA,LRECL=133,BLKSIZE=3990                         00330000
+***************                                                         00340000
+INAREA   DS    CL80                                                     00350000
+OUTAREA  DS    0CL133                                                   00360000
+OUTMSG   DC    C' '                                                     00370000
+OUTMSG1  DC    CL20'YOUR MSG IS'                                        00380000
+OUTMSG2  DS    CL80                                                     00390000
+OUTMSG3  DS    CL32                                                     00400000
+SAVE     DS    18F                                                      00410000
+         END                                                            00420000
+

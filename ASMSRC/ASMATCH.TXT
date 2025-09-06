@@ -1,0 +1,57 @@
+ASMATCH CSECT                                                           00010000
+         SAVE  (14,12)                                                  00020000
+         BALR  12,0              PREPARE A BASE REGISTER                00030000
+         USING *,12              ESTABLISH BASE REGISTER                00040000
+         ST    R13,SAVREG13                                             00050000
+*                                                                       00060000
+         WTO   '* ASMATCH IS STARTING, EXAMPLE OF ATCH MACRO......'     00070000
+*                                                                       00080000
+         WTO   '* ASMATCH LINKING TO MYTCB '                            00090000
+         LA    R13,SAVEAREA                                             00100000
+         ATTACH EP=MYTCB,TID=99,ECB=ECB1                                00110000
+         ST     R1,TCBADR                                               00120000
+         WAIT   1,ECB=ECB1                                              00130001
+         WTO   '* ATTACHED, PROCESSING CONTINUES...'                    00140000
+         DETACH TCBADR                                                  00150001
+*                                                                       00160000
+*---------------------------------------------------------------------* 00170000
+EOJAOK   EQU   *                                                        00180000
+         WTO   '* ASMATCH IS COMPLETE, EXAMPLE OF ATCH MACRO......'     00190000
+         WTO   '* BYE BYE'                                              00200000
+EXIT     EQU   *                                                        00210000
+         L     R13,SAVREG13                                             00220000
+         RETURN (14,12),RC=0                                            00230000
+*                                                                       00240000
+*********************************************************************** 00250000
+* ABENDING WITH RETURN-CODE OF 8                                        00260000
+* RETURN TO THE CALLING PROGRAM OR OPERATING SYSTEM                     00270000
+*                                                                       00280000
+ABEND08  EQU   *                                                        00290000
+         WTO   '* ASMLINK IS ABENDING...RC=0008'                        00300000
+         L     R13,SAVREG13                                             00310000
+         RETURN (14,12),RC=8                                            00320000
+*                                                                       00330000
+*********************************************************************** 00340000
+* DEFINE CONSTANTS AND EQUATES                                          00350000
+*                                                                       00360000
+*                                                                       00370000
+         DS    0F            + FORCE ALIGNMENT                          00380000
+ECB1     DC    F'0'                                                     00390000
+TCBADR   DS    F                                                        00400000
+*                                                                       00410000
+SAVEAREA EQU   *                                                        00420000
+         DC    A(0)                                                     00430000
+         DC    A(0)                                                     00440000
+SAVREG13 DC    A(0)                                                     00450000
+         DC    15A(0)        * USED BY SAVE/RETURN FUNCTIONS            00460000
+*                                                                       00470000
+PARM01   DC    Y(28),Y(0),CL24'* ASMLINK PARAMETER 01 '                 00480000
+PARM02   DC    Y(28),Y(0),CL24'* ASMLINK PARAMETER 02 '                 00490000
+PARM03   DC    Y(28),Y(0),CL24'* ASMLINK PARAMETER 03 '                 00500000
+PARM04   DC    Y(28),Y(0),CL24'* ASMLINK PARAMETER 04 '                 00510000
+* REGISTER EQUATES                                                      00520000
+*                                                                       00530000
+         REGS1  PFX=R                                                   00540000
+*                                                                       00550000
+         END                                                            00560000
+

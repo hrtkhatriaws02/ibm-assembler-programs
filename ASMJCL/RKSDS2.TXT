@@ -1,0 +1,13 @@
+//SHRDV15J   JOB  NOTIFY=&SYSUID                                        00010000
+//ST1        EXEC PROC=HLASMCL                                          00020000
+//C.SYSIN    DD   DSN=SHRDV15.IBM3.ASMSRC(RKSDS2),DISP=SHR              00030000
+//L.SYSLMOD  DD   DSN=SHRDV15.IBM3.ASMLOAD(RKSDS2),DISP=SHR             00040000
+//SYSPRINT   DD   SYSOUT=*                                              00050000
+//*--------------------------------------------------------*//          00060000
+//ST2        EXEC PGM=RKSDS2,PARM=SHRDV64                               00070000
+//STEPLIB    DD   DSN=SHRDV15.IBM3.ASMLOAD,DISP=SHR                     00080000
+//SYSIN      DD   DUMMY                                                 00090000
+//DDKSDS     DD   DSN=SHRDV15.KSDS.CUST,DISP=SHR                        00100000
+//SYSPRINT   DD   SYSOUT=*                                              00110000
+//SYSOUT     DD   SYSOUT=*                                              00120000
+

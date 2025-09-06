@@ -1,0 +1,81 @@
+HRTK0001 CSECT                                                          00010031
+*---------------------------------------------*                         00130001
+* STANDARD LINKAGE FOR A REUSABLE OS/MVS CSECT                          00140001
+*---------------------------------------------*                         00141001
+*---------------*                                                       00150001
+* STANDARD ENTRY                                                        00160001
+*---------------*                                                       00170001
+*                                                                       00171001
+         STM   14,12,12(13)            SAVE CALLER'S REGS               00180000
+         BALR  12,0                    ESTABLISH                        00190000
+         USING *,12                    ADDRESSABILITY                   00200000
+         ST    13,SAVE+4               BACK-CHAIN CALLER'S FROM MINE    00210000
+         LA    13,SAVE                 SET 13 FOR MY SUBROUTINE CALLS   00220000
+*                                                                       00221001
+*------------*                                                          00230027
+* BEGIN LOGIC                                                           00240027
+*------------*                                                          00250027
+*                                                                       00260000
+         WTO   'SHREE GANESHAY NAMAH!!'                                 00270031
+*                                                                       00290031
+         BR    14                                                       00291034
+*                                                                       00300034
+*--------------*                                                        00410001
+* STANDARD EXIT                                                         00420001
+*--------------*                                                        00430001
+*                                                                       00431001
+EXIT     L     13,SAVE+4                                                00440000
+         RETURN (14,12),RC=0           RESTORE CALLER'S REGS & RETURN   00450000
+*                                                                       00450101
+*----------*                                                            00451001
+* DATA AREA                                                             00460001
+*----------*                                                            00470001
+*--------------------*                                                  00480001
+* DCB FILE DEFINITION                                                   00490001
+*--------------------*                                                  00500001
+*                                                                       00510001
+*--------------------------*                                            00550001
+* FILE STRUCTURE DEFINITION                                             00560001
+*--------------------------*                                            00570001
+*                                                                       00580000
+*-----------------------------*                                         00692025
+* PROGRAM VARIABLE DECLARATION                                          00700001
+*-----------------------------*                                         00710001
+*                                                                       00720001
+*-----------------------------*                                         00740001
+* PROGRAM CONSTANT DECLARATION                                          00750001
+*-----------------------------*                                         00760001
+*                                                                       00780000
+*-----------------------*                                               00790001
+* SAVE AREA  DECLARATION                                                00800001
+*-----------------------*                                               00810001
+*                                                                       00820000
+SAVE     DS    18F      AREA FOR CALLEE TO SAVE & RESTORE MY REGS       00830032
+*                                                                       00840032
+*----------------------------*                                          00850001
+* REGISTER PREFIX DECLARATION                                           00860001
+*----------------------------*                                          00870001
+*                                                                       00880000
+R0       EQU   0             PROGRAM PARAMETERS                         00890030
+R1       EQU   1             TO PASS PARAMETERS TO SUBROUTINES          00900029
+R2       EQU   2             GENERAL PURPOSE                            00910029
+R3       EQU   3             GENERAL PURPOSE                            00920029
+R4       EQU   4             GENERAL PURPOSE                            00930029
+R5       EQU   5             GENERAL PURPOSE                            00940029
+R6       EQU   6             GENERAL PURPOSE                            00950029
+R7       EQU   7             GENERAL PURPOSE                            00960029
+R8       EQU   8             GENERAL PURPOSE                            00970029
+R9       EQU   9             GENERAL PURPOSE                            00980029
+R10      EQU   10            GENERAL PURPOSE                            00990029
+R11      EQU   11            GENERAL PURPOSE                            01000029
+R12      EQU   12            BASE REGISTER FOR ADDRESSING               01010029
+R13      EQU   13            SAVE AREA POINTER                          01020029
+R14      EQU   14            TO STORE THE RETURN ADDRESS                01030029
+R15      EQU   15            TO STORE THE ENTRY POINT ADDRESS           01040029
+*                                                                       01050000
+*------------------*                                                    01060001
+* DSECT DECLARATION                                                     01070001
+*------------------*                                                    01080001
+*                                                                       01090000
+         END                                                            01100000
+

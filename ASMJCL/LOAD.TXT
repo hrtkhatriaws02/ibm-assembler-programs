@@ -1,0 +1,28 @@
+//SHRDV15J  JOB NOTIFY=&SYSUID                                          00010000
+//PROCLIB   JCLLIB   ORDER=SHRDV15.ASM.PROCLIB                          00020000
+//*-------------------------------------------------------*//           00030000
+//*          ASSEMBLE AND LINKEDIT SUBROUTINE             *//           00040000
+//*-------------------------------------------------------*//           00050000
+//ST1       EXEC PROC=HLASMCL                                           00060000
+//C.SYSIN   DD   DSN=SHRDV15.IBM3.ASMSRC(B31SUB),DISP=SHR               00070000
+//C.SYSLIB  DD   DSN=SYS1.MACLIB,DISP=SHR                               00080000
+//          DD   DSN=SHRDV15.IBM3.ASMMAC,DISP=SHR                       00090000
+//L.SYSLMOD  DD  DSN=SHRDV15.IBM3.ASMLOAD(B31SUB),DISP=SHR              00100000
+//SYSPRINT  DD   SYSOUT=*                                               00110000
+//*-------------------------------------------------------*//           00120000
+//*          ASSEMBLE AND LINKEDIT MAIN PROGRAM           *//           00130000
+//*-------------------------------------------------------*//           00140000
+//ST2       EXEC PROC=HLASMCL                                           00150000
+//C.SYSIN   DD   DSN=SHRDV15.IBM3.ASMSRC(B24MAIN),DISP=SHR              00160000
+//L.SYSLMOD  DD  DSN=SHRDV15.IBM3.ASMLOAD(B24MAIN),DISP=SHR             00170000
+//SYSPRINT  DD   SYSOUT=*                                               00180000
+//*-------------------------------------------------------*//           00190000
+//*          RUN MAIN PROGRAM                             *//           00200000
+//*-------------------------------------------------------*//           00210000
+//ST3       EXEC PGM=B24MAIN                                 DCT        00280000
+//STEPLIB   DD   DSN=SHRDV15.IBM3.ASMLOAD,DISP=SHR           STC        00290000
+//SYSPRINT  DD   SYSOUT=*                                    INIT       00300000
+//SYSOUT    DD   SYSOUT=*                                               00310000
+//SYSIN     DD   DUMMY                                                  00320000
+//                                                                      00330000
+

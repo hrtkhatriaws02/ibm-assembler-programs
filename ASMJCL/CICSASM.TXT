@@ -1,0 +1,9 @@
+//SHRDV15C  JOB ,,NOTIFY=&SYSUID,CLASS=A,MSGLEVEL=(1,1),MSGCLASS=H      00010000
+//JOBPROC  JCLLIB ORDER=SHRDV15.CICS.PROCLIB                            00020000
+//CICSASM  EXEC DFHEITAL,                                               00030000
+//         SRCLIB=SHRDV15.CICS.SRC,         --> SOURCE LIB NAME         00040000
+//         MEM=ASMCICS2,                    --> MEMBER                  00050004
+//         COPYLIB=SHRDV15.CICS.COPYLIB,    --> BMS MAP LIB             00060000
+//         BMSLIB=SHRDV15.CICS.COPYLIB,     --> BMS MAP LIB             00070000
+//         LOADLIB=CICS.APPLI.LOADLIB       ** DONT CHANGE **           00080000
+

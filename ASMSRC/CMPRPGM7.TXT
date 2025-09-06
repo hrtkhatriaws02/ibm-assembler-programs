@@ -1,0 +1,162 @@
+CMPRPGM7 CSECT                                                          00010000
+*--------------------------------------------------------------*        00020000
+*       FUNCTION - COMPUTE NUM1 AND NUM2 BASED ON CHOICE                00030000
+*       INPUT(S) - NUM1 NUM2 AND CHOICE                                 00040000
+*      OUTPUT(S) - BASED ON CHOICE ADDITION ,SUBTRACTION,...            00050000
+*          ENTRY - CMPRPGM                                              00060000
+*          PARMS - NONE                                                 00070000
+* NORMAL EXIT(S) - RETURN TO CALLER                                     00080000
+* ERROR  EXIT(S) - NONE                                                 00090000
+*    MACROS USED - SAVE, RETURN                                         00100000
+* EXTERNAL CALLS - NONE                                                 00110000
+*     PROGRAMMER - STUDENT_NAME                                         00120000
+*--------------------------------------------------------------*        00130000
+* STANDARD LINKAGE FOR A REUSABLE OS/MVS CSECT                 *        00140000
+*--------------------------------------------------------------*        00150000
+*                       STANDARD ENTRY                         *        00160000
+*--------------------------------------------------------------*        00170000
+         STM   14,12,12(13)            SAVE CALLER'S REGS               00180000
+         BALR  12,0                    ESTABLISH                        00190000
+         USING *,12                    ADDRESSABILITY                   00200000
+         ST    13,SAVE+4               BACK-CHAIN CALLER'S FROM MINE    00210000
+         LA    13,SAVE                 SET 13 FOR MY SUBROUTINE CALLS   00220000
+*--------------------------------------------------------------*        00230000
+*                       BEGIN LOGIC                            *        00240000
+*--------------------------------------------------------------*        00250000
+*                                                                       00260000
+         OPEN  (INFILE,(INPUT))                                         00270000
+         OPEN  (OUTFILE,(OUTPUT))                                       00280000
+*                                                                       00290000
+         GET   INFILE,INREC                                             00300000
+         PACK  BCD,NUM1            CONVERT CHAR TO DECIMAL(2,0)         00310000
+         CVB   5,BCD               CONVERT DECIMAL TO BINARY            00320000
+         ST    5,X                 STORE BIN VALUE INTO X               00330000
+*                                                                       00340000
+         PACK  BCD,NUM2            CONVERT CHAR TO DECIMAL(2,0)         00350000
+         CVB   6,BCD               CONVERT DECIMAL TO BINARY            00360000
+         ST    6,Y                 STORE BIN VALUE INTO Y               00370000
+*                                                                       00380000
+*--------------------------------------------------------------*        00390000
+*           COMPARE CHOICE                                     *        00400000
+*--------------------------------------------------------------*        00410000
+*                                                                       00420000
+         CLC   CHOICE,VADD                                              00430000
+         BE    LADD                                                     00440000
+         CLC   CHOICE,VSUB                                              00450000
+         BE    LSUB                                                     00460000
+         CLC   CHOICE,VMUL                                              00470000
+         BE    LMUL                                                     00480000
+         CLC   CHOICE,VDIV                                              00490000
+         BE    LDIV                                                     00500000
+         WTO   'INVALID CHOICE'                                         00510000
+         B     CLSFILE                                                  00520000
+*--------------------------------------------------------------*        00530000
+*           Z = X + Y                                          *        00540000
+*--------------------------------------------------------------*        00550000
+LADD     L     7,X                  LOAD X VALUE TO REG 7               00560000
+         A     7,Y                  R7 = R7 + Y                         00570000
+         ST    7,Z                  STORE REG 7 VALUE TO Z VARIABLE     00580000
+         B     PRINT                                                    00590000
+*                                                                       00600000
+LSUB     L     7,X                  LOAD X VALUE TO REG 7               00610000
+         S     7,Y                  R7 = R7 + Y                         00620000
+         ST    7,Z                  STORE REG 7 VALUE TO Z VARIABLE     00630000
+         B     PRINT                                                    00640000
+*                                                                       00650000
+LMUL     WTO   'MULTIPLY'                                               00660000
+         B      PRINT                                                   00670000
+LDIV     WTO   'DIVISION'                                               00680000
+         B      PRINT                                                   00690000
+PRINT    L     8,Z                                                      00700000
+         CVD   8,BCD                CONVERT BIN TO DECIMAL              00710000
+         UNPK  SUM,BCD              CONVERT DECIMAL TO CHARACTER        00720000
+         OI    SUM+9,X'F0'                                              00730000
+         PUT   OUTFILE,OUTREC                                           00740000
+*                                                                       00750000
+CLSFILE  CLOSE (INFILE)                                                 00760000
+         CLOSE (OUTFILE)                                                00770000
+*--------------------------------------------------------------*        00780000
+*                       STANDARD EXIT                          *        00790000
+*--------------------------------------------------------------*        00800000
+EXIT     L     13,SAVE+4                                                00810000
+         RETURN (14,12),RC=0           RESTORE CALLER'S REGS & RETURN   00820000
+*----------------------  DATA AREA  ---------------------------*        00830000
+*                                                                       00840000
+*--------------------------------------------------------------*        00850000
+*                       DCB FILE DEFINITION                    *        00860000
+*--------------------------------------------------------------*        00870000
+*                                                                       00880000
+INFILE   DCB   DDNAME=DDIN,LRECL=80,RECFM=FB,MACRF=GM,BLKSIZE=800,     X00890000
+               DSORG=PS                                                 00900000
+*                                                                       00910000
+OUTFILE  DCB   DDNAME=DDOUT,LRECL=133,RECFM=FBA,MACRF=PM,BLKSIZE=3990, X00920000
+               DSORG=PS                                                 00930000
+*                                                                       00940000
+*--------------------------------------------------------------*        00950000
+*                   FILE STRUCTURE DEFINITION                  *        00960000
+*--------------------------------------------------------------*        00970000
+*                                                                       00980000
+INREC    DS    0CL80                                                    00990000
+NUM1     DS    CL3                                                      01000000
+         DC    CL1''                                                    01010000
+NUM2     DS    CL3                                                      01020000
+         DC    CL1''                                                    01030000
+CHOICE   DS    CL3                                                      01040000
+         DC    CL69' '                                                  01050000
+*                                                                       01060000
+BCD      DS    D                                                        01070000
+X        DS    F                                                        01080000
+Y        DS    F                                                        01090000
+Z        DS    F                                                        01100000
+OUTREC   DS    0CL133                                                   01110000
+         DC    C' THE TOTAL VALUE :'                                    01120000
+SUM      DS    CL10                                                     01130000
+         DC    CL105' '                                                 01140000
+VADD     DC    C'ADD'                                                   01141000
+VSUB     DC    C'SUB'                                                   01143000
+VMUL     DC    C'MUL'                                                   01144000
+VDIV     DC    C'DIV'                                                   01145000
+*                                                                       01150000
+*--------------------------------------------------------------*        01160000
+*                   PROGRAM VARIABLE DECLARATION               *        01170000
+*--------------------------------------------------------------*        01180000
+*                                                                       01190000
+*                                                                       01200000
+*--------------------------------------------------------------*        01210000
+*                   PROGRAM CONSTANT DECLARATION               *        01220000
+*--------------------------------------------------------------*        01230000
+*                                                                       01240000
+*                                                                       01250000
+*--------------------------------------------------------------*        01260000
+*                     SAVE AREA  DECLARATION                   *        01270000
+*--------------------------------------------------------------*        01280000
+*                                                                       01290000
+SAVE     DS    18F      AREA FOR CALLEE TO SAVE & RESTORE MY REGS       01300000
+*                                                                       01310000
+*--------------------------------------------------------------*        01320000
+*                  REGISTER PREFIX DECLARATION                 *        01330000
+*--------------------------------------------------------------*        01340000
+*                                                                       01350000
+R0       EQU   0                                                        01360000
+R1       EQU   1                                                        01370000
+R2       EQU   2                                                        01380000
+R3       EQU   3                                                        01390000
+R4       EQU   4                                                        01400000
+R5       EQU   5                                                        01410000
+R6       EQU   6                                                        01420000
+R7       EQU   7                                                        01430000
+R8       EQU   8                                                        01440000
+R9       EQU   9                                                        01450000
+R10      EQU   10                                                       01460000
+R11      EQU   11                                                       01470000
+R12      EQU   12                                                       01480000
+R13      EQU   13                                                       01490000
+R14      EQU   14                                                       01500000
+R15      EQU   15                                                       01510000
+*                                                                       01520000
+*--------------------------------------------------------------*        01530000
+*                  DSECT DECLARATION                           *        01540000
+*--------------------------------------------------------------*        01550000
+*                                                                       01560000
+         END                                                            01570000
+

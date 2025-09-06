@@ -1,0 +1,11 @@
+         MACRO                                                          00001000
+&NAME    PROLOG                                                         00002000
+         SAVE  (14,12)                                                  00010000
+         BALR  R12,0                                                    00020000
+         USING *,R12                                                    00030000
+         LA    R2,SAVEAREA                                              00040000
+         ST    R2,8(,R13)                                             S 00050000
+         ST    R13,SAVEAREA+4                                           00060000
+         LR    R13,R2                                                   00070000
+         MEND                                                           00080000
+

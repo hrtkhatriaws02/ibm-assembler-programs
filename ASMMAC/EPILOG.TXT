@@ -1,0 +1,6 @@
+         MACRO                                                          00001000
+&NAME    EPILOG                                                         00002000
+&NAME    L     R13,SAVEAREA+4                                           00010001
+         RETURN (14,12),RC=0                                            00020000
+         MEND                                                           00030000
+

@@ -1,0 +1,157 @@
+LOOP1    CSECT                                                          00010000
+*--------------------------------------------------------------*        00020000
+*       FUNCTION - LOAD 5 SUBJECT MARKS INTO SMRKKS ARRAY               00030000
+*       INPUT(S) - GET 5 SUBJECT MARKS                                  00040000
+*      OUTPUT(S) - NO  OUTPUT                                           00050000
+*          ENTRY - LOADSMRK                                             00060000
+*          PARMS - NONE                                                 00070000
+* NORMAL EXIT(S) - RETURN TO CALLER                                     00080000
+* ERROR  EXIT(S) - NONE                                                 00090000
+*    MACROS USED - SAVE, RETURN                                         00100000
+* EXTERNAL CALLS - NONE                                                 00110000
+*     PROGRAMMER - STUDENT_NAME                                         00120000
+*--------------------------------------------------------------*        00130000
+* STANDARD LINKAGE FOR A REUSABLE OS/MVS CSECT                 *        00140000
+*--------------------------------------------------------------*        00150000
+*                       STANDARD ENTRY                         *        00160000
+*--------------------------------------------------------------*        00170000
+         STM   14,12,12(13)            SAVE CALLER'S REGS               00180000
+         BALR  12,0                    ESTABLISH                        00190000
+         USING *,12                    ADDRESSABILITY                   00200000
+         ST    13,SAVE+4               BACK-CHAIN CALLER'S FROM MINE    00210000
+         LA    13,SAVE                 SET 13 FOR MY SUBROUTINE CALLS   00220000
+*--------------------------------------------------------------*        00230000
+*                       BEGIN LOGIC                            *        00240000
+*--------------------------------------------------------------*        00250000
+*                                                                       00260000
+         OPEN  (INFILE,(INPUT))                                         00270000
+         OPEN  (OUTFILE,(OUTPUT))                                       00280000
+*                                                                       00290000
+         LA    R8,SMARKS                                                00300000
+         GET   INFILE,INREC                                             00310000
+         PACK  BCD,NUM1            CONVERT CHAR TO DECIMAL(2,0)         00320000
+         CVB   5,BCD               CONVERT DECIMAL TO BINARY            00330000
+         ST    5,0(R8)             STORE BIN VALUE INTO X               00340000
+*                                                                       00350000
+         PACK  BCD,NUM2            CONVERT CHAR TO DECIMAL(2,0)         00360000
+         CVB   5,BCD               CONVERT DECIMAL TO BINARY            00370000
+         ST    5,4(R8)             STORE BIN VALUE INTO Y               00380000
+*                                                                       00390000
+         PACK  BCD,NUM3            CONVERT CHAR TO DECIMAL(2,0)         00400000
+         CVB   5,BCD               CONVERT DECIMAL TO BINARY            00410000
+         ST    5,8(R8)             STORE BIN VALUE INTO Y               00420000
+*                                                                       00430000
+         PACK  BCD,NUM4            CONVERT CHAR TO DECIMAL(2,0)         00440000
+         CVB   5,BCD               CONVERT DECIMAL TO BINARY            00450000
+         ST    5,12(R8)            STORE BIN VALUE INTO Y               00460000
+*                                                                       00470000
+         PACK  BCD,NUM5            CONVERT CHAR TO DECIMAL(2,0)         00480000
+         CVB   5,BCD               CONVERT DECIMAL TO BINARY            00490000
+         ST    5,16(R8)            STORE BIN VALUE INTO Y               00500000
+*                                                                       00510000
+*--------------------------------------------------------------*        00520000
+*           Z = ADDITNON OF 5 SUBJ MARKS                       *        00530000
+*--------------------------------------------------------------*        00540000
+         L     R6,=F'5'             LOOP FOR 5 TIME                     00541000
+         LA    R8,SMARKS            LOAD ADDRESS OF ARRAY               00542000
+         SR    7,7                  INTIALIZE THE REG 7                 00543000
+ALOOP    A     7,0(R8)                                                  00544000
+         LA    R8,4(R8)             R8 = 4 + CONTENT(R8)                00544100
+         BCT   R6,ALOOP                                                 00545000
+         ST    7,Z                  STORE REG 7 VALUE TO Z VARIABLE     00600000
+*                                                                       00610000
+         L     8,Z                                                      00620000
+         CVD   8,BCD                CONVERT BIN TO DECIMAL              00630000
+         UNPK  SUM,BCD              CONVERT DECIMAL TO CHARACTER        00640000
+         OI    SUM+9,X'F0'                                              00650000
+         PUT   OUTFILE,OUTREC                                           00660000
+*                                                                       00670000
+         CLOSE (INFILE)                                                 00680000
+         CLOSE (OUTFILE)                                                00690000
+*--------------------------------------------------------------*        00700000
+*                       STANDARD EXIT                          *        00710000
+*--------------------------------------------------------------*        00720000
+EXIT     L     13,SAVE+4                                                00730000
+         RETURN (14,12),RC=0           RESTORE CALLER'S REGS & RETURN   00740000
+*----------------------  DATA AREA  ---------------------------*        00750000
+*                                                                       00760000
+*--------------------------------------------------------------*        00770000
+*                       DCB FILE DEFINITION                    *        00780000
+*--------------------------------------------------------------*        00790000
+*                                                                       00800000
+INFILE   DCB   DDNAME=DDIN,LRECL=80,RECFM=FB,MACRF=GM,BLKSIZE=800,     X00810000
+               DSORG=PS                                                 00820000
+*                                                                       00830000
+OUTFILE  DCB   DDNAME=DDOUT,LRECL=133,RECFM=FBA,MACRF=PM,BLKSIZE=3990, X00840000
+               DSORG=PS                                                 00850000
+*                                                                       00860000
+*--------------------------------------------------------------*        00870000
+*                   FILE STRUCTURE DEFINITION                  *        00880000
+*--------------------------------------------------------------*        00890000
+*                                                                       00900000
+INREC    DS    0CL80                                                    00910000
+NUM1     DS    CL3                                                      00920000
+         DC    CL1''                                                    00930000
+NUM2     DS    CL3                                                      00940000
+         DC    CL1''                                                    00950000
+NUM3     DS    CL3                                                      00960000
+         DC    CL1''                                                    00970000
+NUM4     DS    CL3                                                      00980000
+         DC    CL1''                                                    00990000
+NUM5     DS    CL3                                                      01000000
+         DC    CL61' '                                                  01010000
+*                                                                       01020000
+BCD      DS    D                                                        01030000
+X        DS    F                                                        01040000
+Y        DS    F                                                        01050000
+Z        DS    F                                                        01060000
+OUTREC   DS    0CL133                                                   01070000
+         DC    C' THE TOTAL VALUE :'                                    01080000
+SUM      DS    CL10                                                     01090000
+         DC    CL105' '                                                 01100000
+*                                                                       01110000
+SMARKS   DS    5F                                                       01120000
+*                                                                       01130000
+*--------------------------------------------------------------*        01140000
+*                   PROGRAM VARIABLE DECLARATION               *        01150000
+*--------------------------------------------------------------*        01160000
+*                                                                       01170000
+*                                                                       01180000
+*--------------------------------------------------------------*        01190000
+*                   PROGRAM CONSTANT DECLARATION               *        01200000
+*--------------------------------------------------------------*        01210000
+*                                                                       01220000
+*                                                                       01230000
+*--------------------------------------------------------------*        01240000
+*                     SAVE AREA  DECLARATION                   *        01250000
+*--------------------------------------------------------------*        01260000
+*                                                                       01270000
+SAVE     DS    18F      AREA FOR CALLEE TO SAVE & RESTORE MY REGS       01280000
+*                                                                       01290000
+*--------------------------------------------------------------*        01300000
+*                  REGISTER PREFIX DECLARATION                 *        01310000
+*--------------------------------------------------------------*        01320000
+*                                                                       01330000
+R0       EQU   0                                                        01340000
+R1       EQU   1                                                        01350000
+R2       EQU   2                                                        01360000
+R3       EQU   3                                                        01370000
+R4       EQU   4                                                        01380000
+R5       EQU   5                                                        01390000
+R6       EQU   6                                                        01400000
+R7       EQU   7                                                        01410000
+R8       EQU   8                                                        01420000
+R9       EQU   9                                                        01430000
+R10      EQU   10                                                       01440000
+R11      EQU   11                                                       01450000
+R12      EQU   12                                                       01460000
+R13      EQU   13                                                       01470000
+R14      EQU   14                                                       01480000
+R15      EQU   15                                                       01490000
+*                                                                       01500000
+*--------------------------------------------------------------*        01510000
+*                  DSECT DECLARATION                           *        01520000
+*--------------------------------------------------------------*        01530000
+*                                                                       01540000
+         END                                                            01550000
+

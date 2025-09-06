@@ -1,0 +1,98 @@
+PSLL     CSECT                                                          00010000
+****************************************************************        00020000
+*       FUNCTION - SLL                                                  00030000
+*       INPUT(S) - NUM1  AND NUM2                                       00040000
+*      OUTPUT(S) - NUM2 SHIFT OF NUM1                                   00050000
+*          ENTRY - PSLL                                                 00060001
+*          PARMS - NONE                                                 00070000
+* NORMAL EXIT(S) - RETURN TO CALLER X                                   00080000
+* ERROR  EXIT(S) - NONE                                                 00090000
+*    MACROS USED - SAVE, RETURN                                         00100000
+* EXTERNAL CALLS - NONE                                                 00110000
+*     PROGRAMMER - SURESH M N                                           00120000
+****************************************************************        00130000
+* STANDARD LINKAGE FOR A REUSABLE OS/MVS CSECT                          00140000
+****************************************************************        00150000
+         SAVE  (14,12)                 SAVE CALLER'S REGS               00160000
+         BALR  R12,0                   ESTABLISH                        00170000
+         USING *,R12                   ADDRESSABILITY                   00180000
+         LA    R2,SAVE                 POINT TO MY LOWER-LEVEL SA       00190000
+         ST    R2,8(,R13)              FORWARD-CHAIN MINE FROM CALLER'S 00200000
+         ST    R13,SAVE+4              BACK-CHAIN CALLER'S FROM MINE    00210000
+         LR    R13,R2                  SET 13 FOR MY SUBROUTINE CALLS   00220000
+*********************** BEGIN LOGIC ****************************        00230000
+         WTO   'INSIDE PADD'                                            00240000
+*   <======YOUR PROGRAM GOES HERE==========>                            00250000
+         OPEN  (INFILE1,(INPUT))                                        00260000
+         OPEN  (OUTFILE1,(OUTPUT))                                      00270000
+*                                                                       00280000
+***************GET DATA AND CONVERT*****************************        00290000
+*                                                                       00300000
+         GET   INFILE1,INAREA     READ DATA FROM INFILE INTO INAREA     00310000
+         PACK  BCD,NUM1           CONVERT CHAR TO PACKED DEC            00320000
+         CVB   R5,BCD             CONVERT PACKED DEC TO BINARY          00330000
+         ST    R5,X               STORE BIN VALUE TO X                  00340000
+         PACK  BCD,NUM2                                                 00350000
+         CVB   R5,BCD                                                   00360000
+         ST    R5,Y                                                     00370000
+*********** COMPUTE THE SUM AND STORE INTO Z********************        00380000
+*                                                                       00390000
+         L     R3,X                   LOAD X VALUE TO REG 3             00400000
+         L     R4,Y                    ADD Y VALUE TO REG 3             00410000
+         SLL   R3,0(R4)                                                 00411000
+         ST    R3,Z                    STORE R3(RESULT) INTO Z          00420000
+*                                                                       00430000
+*************CONVERT TO CHARACTER FORMAT***********************         00440000
+*                                                                       00450000
+         L     R5,Z                                                     00460000
+         CVD   R5,BCD               CONVERT BIN TO DECMIAL              00470000
+         UNPK  SUM,BCD               CONVERT DEC TO CHAR                00480000
+         OI    SUM+9,X'F0'            ELIMINATE THE SING                00490000
+         PUT   OUTFILE1,OUTAREA      PRINT OUTAREA TO OUTFILE1          00500000
+*                                                                       00510000
+INEOF    CLOSE (INFILE1)                                                00520000
+         CLOSE (OUTFILE1)                                               00530000
+***********************  END LOGIC  ****************************        00540000
+RETURN   DS    0H                      BRANCH TO HERE FOR NORMAL RETURN 00550000
+         L     R13,SAVE+4              POINT TO CALLER'S SAVE AREA      00560000
+         RETURN (14,12),RC=0           RESTORE CALLER'S REGS & RETURN   00570000
+***********************  DATA AREA  ****************************        00580000
+INAREA   DS    0CL80                                                    00590000
+NUM1     DS    CL3                                                      00600000
+         DS    CL1                                                      00610000
+NUM2     DS    CL3                                                      00620000
+         DS    CL73                                                     00630000
+OUTAREA  DS    0CL133                                                   00640000
+         DC    C' THE SUM IS:'                                          00650000
+SUM      DS    CL10                                                     00660000
+         DC    CL101' '                                                 00670000
+*                                                                       00680000
+X        DS    F                                                        00690000
+Y        DS    F                                                        00700000
+Z        DS    F                                                        00710000
+BCD      DS    D                                                        00720000
+*****************************FILE DEFINITON********************         00730000
+INFILE1  DCB   DSORG=PS,MACRF=(GM),DDNAME=DDIN,EODAD=INEOF,            *00740000
+               RECFM=FB,LRECL=80,BLKSIZE=800                            00750000
+OUTFILE1 DCB   DSORG=PS,MACRF=(PM),DDNAME=DDOUT,                       *00760000
+               RECFM=FBA,LRECL=133,BLKSIZE=3990                         00770000
+****************************************************************        00780000
+SAVE     DC    18F'0'   AREA FOR CALLEE TO SAVE & RESTORE MY REGS       00790000
+R0       EQU   0                                                        00800000
+R1       EQU   1                                                        00810000
+R2       EQU   2                                                        00820000
+R3       EQU   3                                                        00830000
+R4       EQU   4                                                        00840000
+R5       EQU   5                                                        00850000
+R6       EQU   6                                                        00860000
+R7       EQU   7                                                        00870000
+R8       EQU   8                                                        00880000
+R9       EQU   9                                                        00890000
+R10      EQU   10                                                       00900000
+R11      EQU   11                                                       00910000
+R12      EQU   12                                                       00920000
+R13      EQU   13                                                       00930000
+R14      EQU   14                                                       00940000
+R15      EQU   15                                                       00950000
+         END                                                            00960000
+

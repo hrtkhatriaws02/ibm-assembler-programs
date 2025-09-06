@@ -1,0 +1,22 @@
+//SHRDV15X JOB 'SRINI',NOTIFY=&SYSUID,REGION=0M,MSGLEVEL=(1,1)          00001004
+//*                                                                     00002000
+//JOBLIB   DD DISP=SHR,DSN=DSN910.DB9G.SDSNEXIT                         00003015
+//         DD DISP=SHR,DSN=DSN910.SDSNLOAD                              00004015
+//         DD DISP=SHR,DSN=CEE.SCEERUN                                  00005000
+//BINDPLAN EXEC PGM=IKJEFT01,DYNAMNBR=20                                00007000
+//DBRMLIB  DD DSN=SHRDV15.DBRMLIB.DATA,DISP=SHR                         00008015
+//SYSTSPRT DD SYSOUT=*                                                  00009000
+//SYSTSPRT DD SYSOUT=*                                                  00010000
+//SYSPRINT DD SYSOUT=*                                                  00020000
+//SYSUDUMP DD SYSOUT=*                                                  00030000
+//SYSOUT   DD SYSOUT=*                                                  00040000
+//SYSTSIN  DD *                                                         00050000
+ DSN SYSTEM(DB9G)                                                       00060001
+ BIND PLAN(ASM07P1)-                                                    00070015
+      MEMBER(SELEMP) -                                                  00080015
+      ACT(REP) -                                                        00090000
+      ENCODING(EBCDIC) -                                                00091003
+      ISOLATION(CS)                                                     00100000
+ END                                                                    00101000
+/*                                                                      00110000
+

@@ -1,0 +1,153 @@
+PEDIT1   CSECT ,         COMMA REQUIRED IF COMMENT ON THIS STMT         00010000
+         TITLE 'LEFT ADJUSTED, TOP OF EACH PAGE OF ASM LISTING'         00020000
+****************************************************************        00030000
+*       FUNCTION - EDIT                                                 00040000
+*       INPUT(S) - CONSTANT WITH P, ED                                  00050000
+*      OUTPUT(S) - EDITED OUTPUT                                        00060000
+*          ENTRY - PEDIT1                                               00070000
+*          PARMS - NONE                                                 00080000
+* NORMAL EXIT(S) - RETURN TO CALLER                                     00090000
+* ERROR  EXIT(S) - NONE                                                 00100000
+*    MACROS USED - SAVE, RETURN                                         00110000
+* EXTERNAL CALLS - NONE                                                 00120000
+*     PROGRAMMER - STUDENT_NAME                                         00130000
+****************************************************************        00140000
+* STANDARD LINKAGE FOR A REUSABLE OS/MVS CSECT                          00150000
+****************************************************************        00160000
+         SAVE  (14,12)                 SAVE CALLER'S REGS               00170000
+         BALR  R12,0                   ESTABLISH                        00180000
+         USING *,R12                   ADDRESSABILITY                   00190000
+         LA    R2,SAVEAREA             POINT TO MY LOWER-LEVEL SA       00200000
+         ST    R2,8(,R13)              FORWARD-CHAIN MINE FROM CALLER'S 00210000
+         ST    R13,SAVEAREA+4          BACK-CHAIN CALLER'S FROM MINE    00220000
+         LR    R13,R2                  SET 13 FOR MY SUBROUTINE CALLS   00230000
+*********************** BEGIN LOGIC ****************************        00240000
+*   <======YOUR PROGRAM GOES HERE==========>                            00250000
+         OPEN  (OUTFILE1,(OUTPUT))                                      00260000
+*                                                                       00270000
+         MVC   AOUT,AEDWD                                               00280000
+         ED    AOUT,APK                                                 00290000
+         MVC   SUM,AOUT                                                 00300000
+         PUT   OUTFILE1,OUTAREA                                         00310000
+         UNPK  SUM1,APK                                                 00320000
+         PUT   OUTFILE1,OUTAREA1                                        00330000
+         OI    SUM1+3,X'F0'                                             00340000
+         PUT   OUTFILE1,OUTAREA1                                        00350000
+*                                                                       00360000
+*                                                                       00370000
+         MVC   BOUT,BEDWD                                               00380000
+         ED    BOUT,BPK                                                 00390000
+         MVC   SUM,BOUT                                                 00400000
+         PUT   OUTFILE1,OUTAREA                                         00410000
+*                                                                       00420000
+         MVC   COUT,CEDWD                                               00430000
+         ED    COUT,CPK                                                 00440000
+         MVC   SUM,COUT                                                 00450000
+         PUT   OUTFILE1,OUTAREA                                         00460000
+*                                                                       00461000
+         MVC   DOUT,DEDWD                                               00462000
+         ED    DOUT,DPK                                                 00463000
+         MVC   SUM,DOUT                                                 00464000
+         PUT   OUTFILE1,OUTAREA                                         00465000
+*                                                                       00466000
+         MVC   EOUT,EEDWD                                               00467000
+         ED    EOUT,EPK                                                 00468000
+         MVC   SUM,EOUT                                                 00469000
+         PUT   OUTFILE1,OUTAREA                                         00469100
+*                                                                       00469200
+         MVC   FOUT,FEDWD                                               00469300
+         ED    FOUT,FPK                                                 00469400
+         MVC   SUM2,FOUT                                                00469500
+         PUT   OUTFILE1,OUTAREA2                                        00469600
+*                                                                       00469700
+         MVC   GOUT,GEDWD                                               00469800
+         ED    GOUT,GPK                                                 00469900
+         MVC   SUM3,GOUT                                                00470000
+         PUT   OUTFILE1,OUTAREA3                                        00470100
+*                                                                       00470201
+         MVC   HOUT,HEDWD                                               00470301
+         ED    HOUT,HPK                                                 00470401
+         MVC   SUM4,HOUT                                                00470501
+         PUT   OUTFILE1,OUTAREA4                                        00470601
+*                                                                       00471000
+         CLOSE (OUTFILE1)                                               00480000
+*                                                                       00490000
+***********************  END LOGIC  ****************************        00500000
+RETURN   DS    0H                      BRANCH TO HERE FOR NORMAL RETURN 00510000
+         L     R13,SAVEAREA+4          POINT TO CALLER'S SAVE AREA      00520000
+         RETURN (14,12),RC=0           RESTORE CALLER'S REGS & RETURN   00530000
+***********************  DATA AREA  ****************************        00540000
+APK      DC    PL2'123' X'123C'                                         00550000
+AOUT     DS    CL4                                                      00560000
+AEDWD    DC    X'40202020'                                              00570000
+*                                                                       00580000
+BPK      DC    PL2'0'   X'000C'                                         00590000
+BOUT     DS    CL4                                                      00600000
+BEDWD    DC    X'40202020'                                              00610000
+*                                                                       00620000
+CPK      DC    PL2'0'   X'000C'                                         00630000
+COUT     DS    CL4                                                      00640000
+CEDWD    DC    X'40202120'                                              00650000
+*                                                                       00651000
+DPK      DC    PL2'0'   X'000C'                                         00652000
+DOUT     DS    CL4                                                      00653000
+DEDWD    DC    X'5C202120'                                              00654000
+*                                                                       00655000
+EPK      DC    PL2'-30' X'030D'                                         00656000
+EOUT     DS    CL4                                                      00657000
+EEDWD    DC    X'40202120'                                              00658000
+*                                                                       00659000
+FPK      DC    PL2'-30' X'030D'                                         00659100
+FOUT     DS    CL5                                                      00659200
+FEDWD    DC    X'4020212060'                                            00659300
+*                                                                       00659400
+GPK      DC    PL4'45387'                                               00659500
+GOUT     DS    CL11                                                     00659600
+GEDWD    DC    X'4020206B2021204B202060'                                00659700
+*                                                                       00659801
+HPK      DC    PL4'145387'                                              00659901
+HOUT     DS    CL11                                                     00660001
+HEDWD    DC    X'4020206B2021204B202060'                                00660101
+*********************** DCB DECLARATION*************************        00661001
+OUTFILE1 DCB   DSORG=PS,MACRF=(PM),DDNAME=DDOUT,                       *00670000
+               RECFM=FBA,LRECL=133,BLKSIZE=3990                         00680000
+OUTAREA  DS    0CL133                                                   00690000
+         DC    C' EDIT VALUE:'                                          00700000
+SUM      DS    CL4                                                      00710000
+         DC    CL107' '                                                 00720000
+OUTAREA1 DS    0CL133                                                   00730000
+         DC    C' YOUR VALUE:'                                          00740000
+SUM1     DS    CL4                                                      00750000
+         DC    CL107' '                                                 00760000
+OUTAREA2 DS    0CL133                                                   00761000
+         DC    C' YOUR VALUE:'                                          00762000
+SUM2     DS    CL5                                                      00763000
+         DC    CL106' '                                                 00764000
+OUTAREA3 DS    0CL133                                                   00765000
+         DC    C' YOUR VALUE:'                                          00766000
+SUM3     DS    CL11                                                     00767000
+         DC    CL100' '                                                 00768000
+OUTAREA4 DS    0CL133                                                   00769001
+         DC    C' YOUR VALUE:'                                          00769101
+SUM4     DS    CL11                                                     00769201
+         DC    CL100' '                                                 00769301
+*                                                                       00770000
+SAVEAREA DC    18F'0'   AREA FOR CALLEE TO SAVE & RESTORE MY REGS       00780000
+R0       EQU   0                                                        00790000
+R1       EQU   1                                                        00800000
+R2       EQU   2                                                        00810000
+R3       EQU   3                                                        00820000
+R4       EQU   4                                                        00830000
+R5       EQU   5                                                        00840000
+R6       EQU   6                                                        00850000
+R7       EQU   7                                                        00860000
+R8       EQU   8                                                        00870000
+R9       EQU   9                                                        00880000
+R10      EQU   10                                                       00890000
+R11      EQU   11                                                       00900000
+R12      EQU   12                                                       00910000
+R13      EQU   13                                                       00920000
+R14      EQU   14                                                       00930000
+R15      EQU   15                                                       00940000
+         END                                                            00950000
+

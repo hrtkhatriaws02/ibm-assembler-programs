@@ -1,0 +1,79 @@
+ASMSUB CSECT                                                            00010000
+****************************************************************        00011000
+*       FUNCTION - SUB PROGRAM RECEIVES PARAMETERS FROM MAIN            00012000
+*       INPUT(S) - THRU MAIN PROGRAM                                    00013000
+*      OUTPUT(S) - PRINT MESSAGES                                       00014000
+*          ENTRY - ASMSUB                                               00015000
+*          PARMS - FROM MAIN PROGRAM                                    00016000
+* NORMAL EXIT(S) - RETURN TO CALLER X                                   00017000
+* ERROR  EXIT(S) - NONE                                                 00018000
+*    MACROS USED - SAVE, RETURN                                         00019000
+* EXTERNAL CALLS - NONE                                                 00019100
+*     PROGRAMMER - SURESH M N                                           00019200
+****************************************************************        00019300
+         SAVE  (14,12)                                                  00020000
+         BALR  12,0              PREPARE A BASE REGISTER                00030000
+         USING *,12              ESTABLISH BASE REGISTER                00040000
+*                                                                       00050000
+         LTR   R1,R1                                                    00060000
+         BZ    NOPARMS                                                  00070000
+*                                                                       00080000
+         LR    R2,R1           * PUT ADDR OF ADDR LIST INTO REG-2       00090000
+*                                                                       00100000
+         WTO   '* ASMSUB IS STARTING...'                                00110000
+*                                                                       00120000
+         LA    R3,TOOMANY      * LIMIT LOOP COUNT TO REG-3 VALUE        00130000
+         LA    R4,4            * SET REG-4 TO FOUR (LOOP LIMIT)         00140000
+*                                                                       00150000
+ADDRLOOP EQU   *                                                        00160000
+         L     R5,0(,R2)       * USE REG-5 FOR WTO ADDRESS              00170000
+         WTO   MF=(E,(R5))                                              00180000
+         TM    0(R2),X'80'     * IS THIS LAST PARAMETER...              00190000
+         BO    EOJAOK          * IF YES, BRANCH OUT OF LOOP...          00200000
+         LA    R2,4(,R2)               INCREMENT TO NEXT ADDR IN LIST   00210000
+         BCT   R4,ADDRLOOP       ELSE, DECREMENT PARAMETER COUNT        00220000
+         B     TOOMANY         * TOO-MANY OR INVALID PARM LIST          00230000
+*                                                                       00240000
+*---------------------------------------------------------------------* 00250000
+* NORMAL END-OF-JOB                                                     00260000
+* RETURN TO THE CALLING PROGRAM OR OPERATING SYSTEM                     00270000
+*                                                                       00280000
+EOJAOK   EQU   *                                                        00290000
+         WTO   '* ASMSUB IS RETURNING...'                               00300000
+         RETURN (14,12),RC=0                                            00310000
+*                                                                       00320000
+*********************************************************************** 00330000
+* ABENDING WITH RETURN-CODE OF 8                                        00340000
+* RETURN TO THE CALLING PROGRAM OR OPERATING SYSTEM                     00350000
+*                                                                       00360000
+ABEND08  EQU   *                                                        00370000
+         WTO   '* ASMSUB IS ABENDING...RC=0008'                         00380000
+         RETURN (14,12),RC=8                                            00390000
+*                                                                       00400000
+*********************************************************************** 00410000
+* POST A NON-PARAMTER MESSAGE...                                        00420000
+* RETURN TO THE CALLING PROGRAM OR OPERATING SYSTEM                     00430000
+*                                                                       00440000
+NOPARMS  EQU   *                                                        00450000
+         WTO   '* ASMSUB CALLED WITH ZERO PARAMETERS'                   00460000
+         RETURN (14,12),RC=4                                            00470000
+*                                                                       00480000
+*********************************************************************** 00490000
+* POST A TOO-MANY-PARAMTERS MESSAGE...                                  00500000
+* RETURN TO THE CALLING PROGRAM OR OPERATING SYSTEM                     00510000
+*                                                                       00520000
+TOOMANY  EQU   *                                                        00530000
+         WTO   '* ASMSUB CALLED WITH TOO MANY PARAMETERS'               00540000
+         RETURN (14,12),RC=4                                            00550000
+*                                                                       00560000
+*********************************************************************** 00570000
+* DEFINE CONSTANTS AND EQUATES                                          00580000
+*                                                                       00590000
+         DS    0F            + FORCE ALIGNMENT                          00600000
+*                                                                       00610000
+* REGISTER EQUATES                                                      00620000
+*                                                                       00630000
+         REGS1  PFX=R                                                   00640000
+*                                                                       00650000
+         END                                                            00660000
+

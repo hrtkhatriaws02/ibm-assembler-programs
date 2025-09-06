@@ -1,0 +1,54 @@
+PMAIN2   CSECT                                                          00010000
+************                                                            00020000
+* READ MSG FROM INPUT DATA STREAM AND DISPLAY INTO OP STREAM *          00030000
+************                                                            00040000
+         STM   14,12,12(13)                                             00050000
+         BALR  12,0                                                     00060000
+         USING *,12                                                     00070000
+         ST    13,SAVE+4                                                00080000
+         LA    13,SAVE                                                  00090000
+****************                                                        00100000
+* OPEN INPUT DATA FILE AND STANDARD PRINTER FILE    *                   00110000
+****************                                                        00120000
+         OPEN  (INFILE1,(INPUT))                                        00130000
+*******************                                                     00140000
+*      READ AND PRINT EACH RECORD                                       00150000
+*******************                                                     00160000
+         GET   INFILE1,INAREA                                           00170000
+         PACK  BCD,INT1                                                 00180000
+         CVB   5,BCD                                                    00190000
+         ST    5,X                                                      00200000
+         PACK  BCD,INT2                                                 00210000
+         CVB   5,BCD                                                    00220000
+         ST    5,Y                                                      00230000
+         WTO   'BEFORE CALL'                                            00240000
+         LA    1,=A(X,Y)               \                                00250004
+         L     15,=V(PADD2)             |-->  CALL PADD2,(X,Y)          00260004
+         BALR  14,15                   /                                00270004
+*        CALL  PADD2,(X,Y)                                              00271004
+         WTO   'AFTER CALL'                                             00280000
+*******************                                                     00290000
+INEOF    CLOSE (INFILE1)                                                00300000
+EXIT     L     13,SAVE+4                                                00310000
+         LM    14,12,12(13)                                             00320000
+         RETURN (14,12),RC=0                                            00330000
+***************                                                         00340000
+INFILE1  DCB   DSORG=PS,MACRF=(GM),DDNAME=SYSIN,EODAD=INEOF,           *00350000
+               RECFM=FB,LRECL=80,BLKSIZE=800                            00360000
+OUTFILE1 DCB   DSORG=PS,MACRF=(PM),DDNAME=SYSOUT,                      *00370000
+               RECFM=FBA,LRECL=133,BLKSIZE=3990                         00380000
+***************                                                         00390000
+INAREA   DS    0CL80                                                    00400000
+         DS    CL12                                                     00410000
+INT1     DS    CL3                                                      00420000
+         DS    CL12                                                     00430000
+INT2     DS    CL3                                                      00440000
+         DS    CL50                                                     00450000
+*********                                                               00460000
+BCD      DS    D                                                        00470000
+X        DS    F                                                        00480000
+Y        DS    F                                                        00490000
+Z        DS    F                                                        00500000
+SAVE     DS    18F                                                      00510000
+         END                                                            00520000
+

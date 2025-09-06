@@ -1,0 +1,10 @@
+//SHRDV15J  JOB NOTIFY=&SYSUID                                          00010000
+//*--------------------------------------------------------*//          00020000
+//*           CREATOR: H.R.KHATRI                         -*//          00030000
+//*           PURPOSE: PRECOMPILE,COMPILE AND LINKEDIT    -*//          00040000
+//*           ASSEMBLER PROGRAM                           -*//          00050000
+//*--------------------------------------------------------*//          00060000
+//PROCLIB  JCLLIB ORDER=SHRDV15.ASM.PROCLIB                             00070000
+//STPCAL      EXEC PROC=DSNHASM,MEM=SELEMP,USER=SHRDV15                 00080000
+//PC.SYSIN    DD   DSN=SHRDV15.IBM3.ASMSRC(SELEMP),DISP=SHR             00090001
+

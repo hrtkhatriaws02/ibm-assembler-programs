@@ -1,0 +1,25 @@
+//SHRDV15J    JOB   NOTIFY=&SYSUID                                      00010000
+//STEP1   EXEC  PGM=IDCAMS                                              00020000
+//SYSPRINT  DD SYSOUT=*                                                 00030000
+//SYSIN     DD *                                                        00040000
+ /* IDCAMS COMMAND */                                                   00050000
+    DELETE SHRDV15.KSDS.CUST -                                          00060000
+           CLUSTER                                                      00070000
+ /*  RESET RC      */                                                   00080000
+    SET MAXCC=0                                                         00090000
+ /* IDCAMS COMMAND */                                                   00100000
+ DEFINE CLUSTER (NAME(SHRDV15.KSDS.CUST) -                              00110000
+        TRACKS(10 5) -                                                  00120000
+        VOLUMES(ZAPRD4 -                                                00130000
+               ) -                                                      00140000
+        CONTROLINTERVALSIZE(4096) -                                     00150000
+        FREESPACE(10 20) -                                              00160000
+        KEYS(7 0) -                                                     00170000
+        RECORDSIZE(80 80) -                                             00180000
+        INDEXED -                                                       00190000
+        ) -                                                             00200000
+        DATA (NAME(SHRDV15.KSDS.CUST.DATA) -                            00210000
+        ) -                                                             00220000
+        INDEX (NAME(SHRDV15.KSDS.CUST.INDEX) -                          00230000
+        )                                                               00240000
+

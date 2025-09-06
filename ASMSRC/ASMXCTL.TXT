@@ -1,0 +1,50 @@
+ASMXCTL CSECT                                                           00010000
+         SAVE  (14,12)                                                  00020000
+         BALR  12,0              PREPARE A BASE REGISTER                00030000
+         USING *,12              ESTABLISH BASE REGISTER                00040000
+         ST    R13,SAVREG13                                             00050000
+*                                                                       00060000
+         WTO   '* ASMXCTL IS STARTING, EXAMPLE OF LINK MACRO......'     00070000
+*                                                                       00080000
+         WTO   '* ASMXCTL LINKING TO MYTCB'                             00090000
+         LA    R13,SAVEAREA                                             00100000
+         XCTL  EP=MYTCB                                                 00110000
+         WTO   '* ASMXCTL RETURN...'                                    00120000
+*                                                                       00130000
+*---------------------------------------------------------------------* 00140000
+EOJAOK   EQU   *                                                        00150000
+         WTO   '* ASMXCTL IS COMPLETE, EXAMPLE OF LINK MACRO......'     00160000
+         L     R13,SAVREG13                                             00170000
+         RETURN (14,12),RC=0                                            00180000
+*                                                                       00190000
+*********************************************************************** 00200000
+* ABENDING WITH RETURN-CODE OF 8                                        00210000
+* RETURN TO THE CALLING PROGRAM OR OPERATING SYSTEM                     00220000
+*                                                                       00230000
+ABEND08  EQU   *                                                        00240000
+         WTO   '* ASMXCTL IS ABENDING...RC=0008'                        00250000
+         L     R13,SAVREG13                                             00260000
+         RETURN (14,12),RC=8                                            00270000
+*                                                                       00280000
+*********************************************************************** 00290000
+* DEFINE CONSTANTS AND EQUATES                                          00300000
+*                                                                       00310000
+*                                                                       00320000
+         DS    0F            + FORCE ALIGNMENT                          00330000
+*                                                                       00340000
+SAVEAREA EQU   *                                                        00350000
+         DC    A(0)                                                     00360000
+         DC    A(0)                                                     00370000
+SAVREG13 DC    A(0)                                                     00380000
+         DC    15A(0)        * USED BY SAVE/RETURN FUNCTIONS            00390000
+*                                                                       00400000
+PARM01   DC    Y(28),Y(0),CL24'* ASMLINK PARAMETER 01 '                 00410000
+PARM02   DC    Y(28),Y(0),CL24'* ASMLINK PARAMETER 02 '                 00420000
+PARM03   DC    Y(28),Y(0),CL24'* ASMLINK PARAMETER 03 '                 00430000
+PARM04   DC    Y(28),Y(0),CL24'* ASMLINK PARAMETER 04 '                 00440000
+* REGISTER EQUATES                                                      00450000
+*                                                                       00460000
+         REGS1  PFX=R                                                   00470000
+*                                                                       00480000
+         END                                                            00490000
+

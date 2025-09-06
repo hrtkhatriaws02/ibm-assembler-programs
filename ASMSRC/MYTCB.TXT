@@ -1,0 +1,120 @@
+MYTCB    CSECT                                                          00010000
+************                                                            00020000
+* READ MSG FROM INPUT DATA STREAM AND DISPLAY INTO OP STREAM *          00030000
+************                                                            00040000
+START    PROLOG                                                         00050000
+****************                                                        00060000
+* OPEN INPUT DATA FILE AND STANDARD PRINTER FILE    *                   00070000
+****************                                                        00080000
+         OPEN  (OUTFILE1,(OUTPUT))                                      00090000
+*******************                                                     00100000
+*      READ AND PRINT EACH RECORD                                       00110000
+*******************                                                     00120000
+*                                                                       00130000
+*                                                                       00140000
+GETCVT   L     3,CVTPTR                                                 00150000
+         USING CVT,3                                                    00160000
+         WTO   'I AM IN MYTCB PROGRAM'                                  00170003
+         XR    0,0                                                      00180000
+         USING PSA,0                                                    00190000
+*                                                                       00200000
+         L     5,PSATOLD          ASVT ADDRESS                          00210000
+         USING TCB,5                                                    00220000
+         L     6,TCBJSCB                                                00230000
+         USING IEZJSCB,6                                                00240000
+         L     8,PSAAOLD                                                00250000
+         USING ASCB,8                                                   00260000
+         L     9,ASCBASXB                                               00270000
+         USING ASXB,9                                                   00280000
+         XR    7,7                                                      00290000
+         ICM   7,B'0001',JSCBSTEP                                       00300000
+         CVD   7,BCD                                                    00310000
+         UNPK  OUTSTPN,BCD                                              00320000
+         OI    OUTSTPN+3,X'F0'                                          00330000
+         ICM   7,B'0011',ASXBTCBS                                       00340000
+         CVD   7,BCD                                                    00350000
+         UNPK  OUTTCBN,BCD                                              00360000
+         OI    OUTTCBN+3,X'F0'                                          00370000
+         MVC   OUTTID,TCBTID                                            00380000
+         PUT   OUTFILE1,OUTAREA                                         00390000
+         WTO   'MYTCB - FIRST RECORD WRITTEN'                           00400000
+         DROP  R8,R9                                                    00410000
+         L     9,TCBTIO                                                 00420000
+         USING TIOT1,9                                                  00430000
+         MVC   OUTJOBN,TIOCNJOB                                         00440000
+         MVC   OUTPSTN,TIOCPSTN                                         00450000
+         MVC   OUTJSTN,TIOCJSTN                                         00460000
+         PUT   OUTFILE1,OUTAREA2                                        00470000
+         WTO   'MYTCB - SECOND RECORD WRITTEN'                          00480000
+*******************                                                     00490000
+INEOF    EQU   *                                                        00500000
+         CLOSE (INFILE1)                                                00510000
+         CLOSE (OUTFILE1)                                               00520000
+EXIT     EQU   *                                                        00530000
+         EPILOG                                                         00540000
+***************                                                         00550000
+INFILE1  DCB   DSORG=PS,MACRF=(GM),DDNAME=SYSIN,EODAD=INEOF,           *00560000
+               RECFM=FB,LRECL=80,BLKSIZE=800                            00570000
+OUTFILE1 DCB   DSORG=PS,MACRF=(PM),DDNAME=SYSOUT,                      *00580000
+               RECFM=FBA,LRECL=133,BLKSIZE=3990                         00590000
+***************                                                         00600000
+ASVTADR  DS    F                                                        00610000
+MEFLAG   DS    CL1                                                      00620000
+INPARM   DS    CL3                                                      00630000
+INAREA   DS    0CL80                                                    00640000
+         DS    CL12                                                     00650000
+INT1     DS    CL3                                                      00660000
+         DS    CL12                                                     00670000
+INT2     DS    CL3                                                      00680000
+         DS    CL50                                                     00690000
+OUTAREA  DS    0CL132                                                   00700000
+         DS    CL2' '                                                   00710000
+         DC    CL10'STEP NO : '                                         00720000
+OUTSTPN  DC    CL4' '                                                   00730000
+         DC    CL2' '                                                   00740000
+         DC    CL12'NO OF TCBS:'                                        00750000
+OUTTCBN  DC    CL4' '                                                   00760000
+         DC    CL2' '                                                   00770000
+         DC    CL10'TCB ID   :'                                         00780000
+OUTTID   DC    CL1' '                                                   00790000
+         DC    CL60'  '                                                 00800000
+OUTAREA2 DS    0CL132                                                   00810000
+         DS    CL2' '                                                   00820000
+         DC    CL10'JOB NAME: '                                         00830000
+OUTJOBN  DC    CL8' '                                                   00840000
+         DS    CL2' '                                                   00850000
+         DC    CL15'PROC STEP NAME:'                                    00860000
+OUTPSTN  DC    CL8' '                                                   00870000
+         DS    CL2' '                                                   00880000
+         DC    CL15'JOB  STEP NAME:'                                    00890000
+OUTJSTN  DC    CL8' '                                                   00900000
+         DC    CL2' '                                                   00910000
+         DC    CL78'  '                                                 00920000
+*********                                                               00930000
+         YREGS                                                          00940002
+*        REGSPX  PFX=R                                                  00950000
+*        REGS1   PFX=R                                                  00960000
+WORK     DS      XL8              8 BYTES MISC WORKING STORAGE          00970000
+ZEROS    DS      XL8              8 BYTES OF ZERO - FOR MVZ             00980000
+*********                                                               00990000
+BCD      DS    D                                                        01000000
+X        DS    F                                                        01010000
+Y        DS    F                                                        01020000
+Z        DS    F                                                        01030000
+SAVEAREA DS    18F                                                      01040001
+         DSECT                                                          01050000
+ASVTPTR  DS    F                                                        01060000
+ASCBPTR  DS    F                                                        01070000
+JBNAME   DS       CL8                                                   01080000
+MAXAS    DS       0F                                                    01090000
+ASMAX    DS       F                                                     01100000
+         IHAPSA   DSECT=YES                                             01110000
+         IHAASCB  DSECT=YES                                             01120000
+         CVT      DSECT=YES,LIST=YES                                    01130000
+         IKJTCB   DSECT=YES,LIST=YES                                    01140000
+         IHAASXB  DSECT=YES,LIST=YES                                    01150000
+         IEZJSCB                                                        01160000
+         IHAASVT                                                        01170000
+         IEFTIOT1                                                       01180000
+         END                                                            01190000
+

@@ -1,0 +1,61 @@
+PADD2    CSECT                                                          00010000
+************                                                            00020000
+* READ MSG FROM INPUT DATA STREAM AND DISPLAY INTO OP STREAM *          00030000
+************                                                            00040000
+         STM   14,12,12(13)                                             00050000
+         BALR  12,0                                                     00060000
+         USING *,12                                                     00070000
+         LM    2,3,0(1)    LOAD A(X) AND A(Y) INTO REG2 AND REG3        00080002
+         L     8,0(0,2)    LAOD X VALUE INTO REG8                       00090002
+         L     9,0(0,3)    LAOD Y VALUE INTO REG9                       00100002
+         AR    8,9                                                      00110000
+         WTO   'AFTER L FIRST PARM ADDRESS'                             00120000
+         ST    13,SAVE+4                                                00130000
+         LA    13,SAVE                                                  00140000
+****************                                                        00150000
+* OPEN INPUT DATA FILE AND STANDARD PRINTER FILE    *                   00160000
+****************                                                        00170000
+         OPEN  (OUTFILE1,(OUTPUT))                                      00180000
+*******************                                                     00190000
+*      READ AND PRINT EACH RECORD                                       00200000
+*******************                                                     00210000
+         WTO   'INSIDE PADD2'                                           00220001
+         WTO   'AFTER AR'                                               00230000
+         ST    8,Z                                                      00240000
+**************                                                          00250000
+         L     5,Z                                                      00260000
+         CVD   5,BCD                                                    00270000
+         UNPK  SUM,BCD                                                  00280000
+         OI    SUM+9,X'F0'                                              00290000
+         PUT   OUTFILE1,OUTAREA                                         00300000
+*******************                                                     00310000
+INEOF    CLOSE (INFILE1)                                                00320000
+         CLOSE (OUTFILE1)                                               00330000
+EXIT     L     13,SAVE+4                                                00340000
+         LM    14,12,12(13)                                             00350000
+         RETURN (14,12),RC=0                                            00360000
+***************                                                         00370000
+INFILE1  DCB   DSORG=PS,MACRF=(GM),DDNAME=SUBIN,EODAD=INEOF,           *00380000
+               RECFM=FB,LRECL=80,BLKSIZE=800                            00390000
+OUTFILE1 DCB   DSORG=PS,MACRF=(PM),DDNAME=SUBOUT,                      *00400000
+               RECFM=FBA,LRECL=133,BLKSIZE=3990                         00410000
+***************                                                         00420000
+INAREA   DS    0CL80                                                    00430000
+         DS    CL12                                                     00440000
+INT1     DS    CL3                                                      00450000
+         DS    CL12                                                     00460000
+INT2     DS    CL3                                                      00470000
+         DS    CL50                                                     00480000
+OUTAREA  DS    0CL132                                                   00490000
+         DS    CL7' '                                                   00500000
+         DC    C'YOUR SUM IS '                                          00510000
+SUM      DS    CL10                                                     00520000
+         DC    CL104' '                                                 00530000
+*********                                                               00540000
+BCD      DS    D                                                        00550000
+X        DS    F                                                        00560000
+Y        DS    F                                                        00570000
+Z        DS    F                                                        00580000
+SAVE     DS    18F                                                      00590000
+         END                                                            00600000
+

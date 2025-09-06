@@ -1,0 +1,51 @@
+RESDS1   CSECT                                                          00010000
+RESDS1   AMODE 31                                                       00020000
+RESDS1   RMODE 24                                                       00030000
+**************************************************************          00040000
+* READ MSG FROM INPUT DATA STREAM AND DISPLAY INTO OP STREAM *          00050000
+**************************************************************          00060000
+         STM   14,12,12(13)                                             00070000
+         BALR  12,0                                                     00080000
+         USING *,12                                                     00090000
+         ST    13,SAVE+4                                                00100000
+         LA    13,SAVE                                                  00110000
+**************************************************************          00120000
+* OPEN INPUT DATA FILE AND STANDARD PRINTER FILE             *          00130000
+**************************************************************          00140000
+         OPEN  (INFILE1)                                                00150000
+         OPEN  (OUTFILE1,(OUTPUT))                                      00160000
+**************************************************************          00170000
+*      READ AND PRINT EACH RECORD                            *          00180000
+**************************************************************          00190000
+RLOOP    MVC   INAREA,=80C' '                                           00200000
+         GET   RPL=READIT                                               00210000
+         MVC   OUTAREA,INAREA                                           00220000
+         PUT   OUTFILE1,OUTAREA                                         00230000
+         B     RLOOP                                                    00240000
+**************************************************************          00250000
+*      CLOSE INFILE AND OUTFILE                              *          00260000
+**************************************************************          00270000
+INEOF    CLOSE (INFILE1)                                                00280000
+         CLOSE (OUTFILE1)                                               00290000
+**************************************************************          00300000
+*      STANDARD EXIT                                         *          00310000
+**************************************************************          00320000
+EXIT     L     13,SAVE+4                                                00330000
+         LM    14,12,12(13)                                             00340000
+         RETURN (14,12),RC=0                                            00350000
+**************************************************************          00360000
+*      FILE,VARIABLE AND SAVE AREA DECLARATION               *          00370000
+**************************************************************          00380000
+OUTFILE1 DCB   DSORG=PS,MACRF=(PM),DDNAME=SYSOUT,                      *00390000
+               RECFM=FB,LRECL=80,BLKSIZE=800                            00400000
+INFILE1  ACB   AM=VSAM,DDNAME=DDESDS,MACRF=(ADR,SEQ,IN),EXLST=EOFACB    00410000
+READIT   RPL   AM=VSAM,ACB=INFILE1,RECLEN=80,AREA=INAREA,              *00420000
+               AREALEN=80,OPTCD=(SEQ,ADR,NUP)                           00430000
+EOFACB   EXLST EODAD=INEOF                                              00440000
+*                                                                       00450000
+INAREA   DS    CL80                                                     00460000
+OUTAREA  DS    CL80                                                     00470000
+*                                                                       00480000
+SAVE     DS    18F                                                      00490000
+         END                                                            00500000
+

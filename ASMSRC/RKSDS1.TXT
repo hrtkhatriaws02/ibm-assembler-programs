@@ -1,0 +1,66 @@
+RKSDS1   CSECT                                                          00010000
+RKSDS1   AMODE 31                                                       00020000
+RKSDS1   RMODE 24                                                       00030000
+**************************************************************          00040000
+* READ MSG FROM INPUT DATA STREAM AND DISPLAY INTO OP STREAM *          00050000
+**************************************************************          00060000
+         STM   14,12,12(13)                                             00070000
+         BALR  12,0                                                     00080000
+         USING *,12                                                     00090000
+*        L     2,0(1)                                                   00091003
+*        LH    3,0(2)                                                   00092003
+*        LTR   3,3                                                      00093003
+*        BZ    EXIT                                                     00094003
+*        MVC   ID,2(2)                                                  00095003
+         ST    13,SAVE+4                                                00100000
+         LA    13,SAVE                                                  00110000
+**************************************************************          00120000
+* OPEN INPUT DATA FILE AND STANDARD PRINTER FILE             *          00130000
+**************************************************************          00140000
+         OPEN  (OUTFILE,(OUTPUT))      DCB ---> SPOOL                   00150001
+         OPEN  (INFILE)                ACB                              00160001
+**************************************************************          00170000
+*      READ AND PRINT EACH RECORD                            *          00180000
+**************************************************************          00190000
+READ     MVC   ID,=C'SHRDV63'                                           00200003
+         GET   RPL=GETIT                                                00210000
+         LTR   15,15                                                    00220000
+         BZ    PRINTRD                                                  00230000
+         MVC   OUTA,=C'RECORD NOT FOUND'                                00240000
+         PUT   OUTFILE,OUTAREA1                                         00250000
+         B     INEOF                                                    00260000
+PRINTRD  MVC   OUTA,INAREA                                              00270000
+         PUT   OUTFILE,OUTAREA1                                         00280000
+**************************************************************          00290000
+*      CLOSE INFILE AND OUTFILE                              *          00300000
+**************************************************************          00310000
+INEOF    CLOSE (OUTFILE)                                                00320000
+         CLOSE (INFILE)                                                 00330000
+**************************************************************          00340000
+*      STANDARD EXIT                                         *          00350000
+**************************************************************          00360000
+EXIT     L     13,SAVE+4                                                00370000
+         RETURN (14,12),RC=0                                            00390000
+**************************************************************          00400000
+*      FILE,VARIABLE AND SAVE AREA DECLARATION               *          00410000
+**************************************************************          00420000
+OUTFILE  DCB   DSORG=PS,MACRF=(PM),DDNAME=SYSOUT,                      *00430000
+               RECFM=FB,LRECL=80,BLKSIZE=800                            00440000
+INFILE   ACB   AM=VSAM,DDNAME=DDKSDS,MACRF=(KEY,DIR,IN)                 00450000
+GETIT    RPL   AM=VSAM,ACB=INFILE,RECLEN=80,AREA=INAREA,               *00460000
+               AREALEN=80,OPTCD=(KEY,DIR,SYN,MVE,NUP),ARG=ID            00470000
+*                                                                       00480000
+OUTAREA  DS    CL80                                                     00490000
+INAREA   DS    0CL80                                                    00500000
+ID       DS    CL7                                                      00510001
+         DC    CL2' '                                                   00520000
+NAME     DS    CL15                                                     00530000
+ADDRESS  DS    CL15                                                     00540000
+         DC    CL41' '                                                  00550001
+OUTAREA1 DS    0CL132                                                   00560000
+OUTA     DS    CL80                                                     00570000
+         DC    CL52' '                                                  00580000
+*                                                                       00590000
+SAVE     DS    18F                                                      00600000
+         END                                                            00610000
+

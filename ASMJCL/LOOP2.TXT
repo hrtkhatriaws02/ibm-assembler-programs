@@ -1,0 +1,21 @@
+//SHRDV15J  JOB ,'H.R.KHATRI',NOTIFY=&SYSUID                            00010000
+//PROCLIB   JCLLIB   ORDER=SHRDV15.IBM3.ASMPROC                         00020000
+//*----------------------------------------------------------*//        00030000
+//*     COMPILE AND LINKEDIT                                 *//        00040000
+//*----------------------------------------------------------*//        00050000
+//ST1       EXEC PROC=HLASMCL                                           00060000
+//C.SYSIN   DD   DSN=SHRDV15.IBM3.ASMSRC(LOOP2),DISP=SHR                00070000
+//L.SYSLMOD DD   DSN=SHRDV15.IBM3.ASMLOAD(LOOP2),DISP=SHR               00080000
+//SYSPRINT  DD   SYSOUT=*                                               00090000
+//*----------------------------------------------------------*//        00100000
+//*     RUN ASSEMBLER PROGRAM                                *//        00110000
+//*----------------------------------------------------------*//        00120000
+//ST2       EXEC PGM=LOOP2,COND=(4,LT)                                  00130000
+//STEPLIB   DD   DSN=SHRDV15.IBM3.ASMLOAD,DISP=SHR                      00140000
+//SYSIN     DD   DUMMY                                                  00150000
+//SYSPRINT  DD   SYSOUT=*                                               00160000
+//DDOUT     DD   SYSOUT=*                                               00170000
+//DDIN      DD   *                                                      00180000
+099 098 097 096 096                                                     00190000
+/*                                                                      00200000
+

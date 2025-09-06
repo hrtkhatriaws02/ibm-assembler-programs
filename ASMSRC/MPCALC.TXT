@@ -1,0 +1,80 @@
+MPCALC   CSECT                                                          00010000
+****************************************************************        00020000
+*       FUNCTION - ADD TWO NUMBERS USING MACRO CALC                     00030001
+*       INPUT(S) - NUM1  AND NUM2 FROM DDIN                             00040001
+*      OUTPUT(S) - RES  SUM OF TWO NUMBERS                              00050000
+*          ENTRY - MPCALC                                               00060001
+*          PARMS - NONE                                                 00070000
+* NORMAL EXIT(S) - RETURN TO CALLER X                                   00080000
+* ERROR  EXIT(S) - NONE                                                 00090000
+*    MACROS USED - SAVE, RETURN                                         00100000
+* EXTERNAL CALLS - NONE                                                 00110000
+*     PROGRAMMER - SURESH M N                                           00120000
+****************************************************************        00130000
+* STANDARD LINKAGE FOR A REUSABLE OS/MVS CSECT                          00140000
+****************************************************************        00150000
+         SAVE  (14,12)                 SAVE CALLER'S REGS               00160000
+         BALR  R12,0                   ESTABLISH                        00170000
+         USING *,R12                   ADDRESSABILITY                   00180000
+         LA    R2,SAVEAREA             POINT TO MY LOWER-LEVEL SA       00190000
+         ST    R2,8(,R13)              FORWARD-CHAIN MINE FROM CALLER'S 00200000
+         ST    R13,SAVEAREA+4          BACK-CHAIN CALLER'S FROM MINE    00210000
+         LR    R13,R2                  SET 13 FOR MY SUBROUTINE CALLS   00220000
+*********************** BEGIN LOGIC ****************************        00230000
+         WTO   'INSIDE PADD'                                            00240000
+*   <======YOUR PROGRAM GOES HERE==========>                            00250000
+         OPEN  (INFILE1,(INPUT))                                        00260000
+         OPEN  (OUTFILE1,(OUTPUT))                                      00270000
+*                                                                       00280000
+***************GET DATA AND CONVERT*****************************        00290000
+*                                                                       00300000
+         GET   INFILE1,INAREA                                           00310000
+         PACK  BCD,NUM1                                                 00320000
+         CVB   R5,BCD                                                   00330000
+         ST    R5,X                                                     00340000
+         PACK  BCD,NUM2                                                 00350000
+         CVB   R5,BCD                                                   00360000
+         ST    R5,Y                                                     00370000
+*********** COMPUTE THE SUM AND STORE INTO Z********************        00380000
+*                                                                       00390000
+         CALC  X,Z,CHOICE=ADD                                           00400003
+*                                                                       00410000
+*************CONVERT TO CHARACTER FORMAT***********************         00420000
+*                                                                       00430000
+         L     R5,Z                                                     00440000
+         CVD   R5,BCD                                                   00450000
+         UNPK  SUM,BCD                                                  00460000
+         OI    SUM+9,X'F0'            ELIMINATE THE SING                00470000
+         PUT   OUTFILE1,OUTAREA                                         00480000
+*                                                                       00490000
+INEOF    CLOSE (INFILE1)                                                00500000
+         CLOSE (OUTFILE1)                                               00510000
+***********************  END LOGIC  ****************************        00520000
+RETURN   DS    0H                      BRANCH TO HERE FOR NORMAL RETURN 00530000
+         L     R13,SAVEAREA+4          POINT TO CALLER'S SAVE AREA      00540000
+         RETURN (14,12),RC=0           RESTORE CALLER'S REGS & RETURN   00550000
+***********************  DATA AREA  ****************************        00560000
+INAREA   DS    0CL80                                                    00570000
+NUM1     DS    CL3                                                      00580000
+         DS    CL1                                                      00590000
+NUM2     DS    CL3                                                      00600000
+         DS    CL73                                                     00610000
+OUTAREA  DS    0CL133                                                   00620000
+         DC    C' THE SUM IS:'                                          00630000
+SUM      DS    CL10                                                     00640000
+         DC    CL101' '                                                 00650000
+*                                                                       00660000
+X        DS    F                                                        00670000
+Y        DS    F                                                        00680000
+Z        DS    F                                                        00690000
+BCD      DS    D                                                        00700000
+*****************************FILE DEFINITON********************         00710000
+INFILE1  DCB   DSORG=PS,MACRF=(GM),DDNAME=DDIN,EODAD=INEOF,            *00720000
+               RECFM=FB,LRECL=80,BLKSIZE=800                            00730000
+OUTFILE1 DCB   DSORG=PS,MACRF=(PM),DDNAME=DDOUT,                       *00740000
+               RECFM=FBA,LRECL=133,BLKSIZE=3990                         00750000
+****************************************************************        00760000
+SAVEAREA DC    18F'0'   AREA FOR CALLEE TO SAVE & RESTORE MY REGS       00770000
+         YREGS                                                          00780003
+         END                                                            00940000
+

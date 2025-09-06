@@ -1,0 +1,64 @@
+ASMCALL CSECT                                                           00010000
+*        AMODE 31                                                       00020000
+         SAVE  (14,12)                                                  00030000
+         BALR  12,0              PREPARE A BASE REGISTER                00040000
+         USING *,12              ESTABLISH BASE REGISTER                00050000
+         ST    R13,SAVREG13                                             00060000
+*                                                                       00070000
+         WTO   '* ASMCALL IS STARTING, EXAMPLE OF CALL MACRO...'        00080000
+*                                                                       00090000
+         WTO   '* ASMCALL CALLING ASMSUB WITHOUT PARAMETERS...'         00100000
+         LA    R13,SAVEAREA                                             00110000
+         SR    R1,R1                                                    00120000
+         CALL  ASMSUB                                                   00130000
+         WTO   '* ASMCALL RETURN...'                                    00140000
+*                                                                       00150000
+         WTO   '* ASMCALL CALLING ASMSUB WITH 3    PARAMETERS...'       00160004
+         LA    R13,SAVEAREA                                             00170000
+         CALL  ASMSUB,(PARM01,PARM02,PARM03),VL                         00180008
+         WTO   '* ASMCALL RETURN...'                                    00190000
+*                                                                       00200000
+*                                                                       00201005
+         WTO   '* ASMCALL CALLING ASMSUB WITH 5    PARAMETERS...'       00202005
+         LA    R13,SAVEAREA                                             00203005
+         CALL  ASMSUB,(PARM01,PARM02,PARM03,PARM04,PARM05),VL           00204005
+         WTO   '* ASMCALL RETURN...'                                    00205005
+*                                                                       00206005
+*---------------------------------------------------------------------* 00210000
+EOJAOK   EQU   *                                                        00220000
+         WTO   '* ASMCALL IS COMPLETE, EXAMPLE OF CALL MACRO......'     00230000
+         L     R13,SAVREG13                                             00240000
+         RETURN (14,12),RC=0                                            00250000
+*                                                                       00260000
+*********************************************************************** 00270000
+* ABENDING WITH RETURN-CODE OF 8                                        00280000
+* RETURN TO THE CALLING PROGRAM OR OPERATING SYSTEM                     00290000
+*                                                                       00300000
+ABEND08  EQU   *                                                        00310000
+         WTO   '* ASMCALL IS ABENDING...RC=0008'                        00320000
+         L     R13,SAVREG13                                             00330000
+         RETURN (14,12),RC=8                                            00340000
+*                                                                       00350000
+*********************************************************************** 00360000
+* DEFINE CONSTANTS AND EQUATES                                          00370000
+*                                                                       00380000
+         DS    0F            + FORCE ALIGNMENT                          00390000
+*                                                                       00400000
+SAVEAREA EQU   *                                                        00410000
+         DC    A(0)                                                     00420000
+         DC    A(0)                                                     00430000
+SAVREG13 DC    A(0)                                                     00440000
+         DC    15A(0)        * USED BY SAVE/RETURN FUNCTIONS            00450000
+*                                                                       00460000
+PARM01   DC    Y(28),Y(0),CL24'* ASMCALL PARAMETER 01 '                 00470002
+PARM02   DC    Y(28),Y(0),CL24'* ASMCALL PARAMETER 02 '                 00480002
+PARM03   DC    Y(28),Y(0),CL24'* ASMCALL PARAMETER 03 '                 00490002
+PARM04   DC    Y(28),Y(0),CL24'* ASMCALL PARAMETER 04 '                 00500002
+PARM05   DC    Y(28),Y(0),CL24'* ASMCALL PARAMETER 05 '                 00501005
+*                                                                       00510000
+* REGISTER EQUATES                                                      00520000
+*                                                                       00530000
+         REGS1  PFX=R                                                   00540000
+*                                                                       00550000
+         END                                                            00560000
+

@@ -1,0 +1,198 @@
+HRTK0003 CSECT                                                          00010050
+*--------------------------------------------*                          00130056
+* STANDARD LINKAGE FOR A REUSABLE OS/MVS CSECT                          00140001
+*--------------------------------------------*                          00141056
+*--------------*                                                        00150056
+* STANDARD ENTRY                                                        00160001
+*--------------*                                                        00170056
+*                                                                       00171001
+         STM   14,12,12(13)            SAVE CALLER'S REGS               00180000
+         BALR  12,0                    ESTABLISH                        00190000
+         USING *,12                    ADDRESSABILITY                   00200000
+         ST    13,SAVE+4               BACK-CHAIN CALLER'S FROM MINE    00210000
+         LA    13,SAVE                 SET 13 FOR MY SUBROUTINE CALLS   00220000
+*                                                                       00221001
+*------------------*                                                    00222056
+* FILE CONTROL BLOCK                                                    00223056
+*------------------*                                                    00224056
+*                                                                       00225056
+INFILE   DCB   DDNAME=DDIN,LRECL=80,RECFM=FB,MACRF=GM,BLKSIZE=800,     X00226056
+               DSORG=PS,EODAD=EOFEXIT                                   00227056
+OUTFILE  DCB   DDNAME=DDOUT,LRECL=133,RECFM=FBA,MACRF=PM,BLKSIZE=3990, X00228056
+               DSORG=PS                                                 00229056
+*                                                                       00229156
+*---------------*                                                       00229256
+* WORKING STORAGE                                                       00229356
+*---------------*                                                       00229456
+*                                                                       00229556
+INREC    DS    0CL80                   INPUT RECORD                     00229656
+NUM1I    DS    CL3                     FIRST NUMBER CHAR(3)             00229756
+         DC    C' '                                                     00229856
+OPERI    DS    CL1                     OPERATOR CHAR(1)                 00229956
+         DC    C' '                                                     00230056
+NUM2I    DS    CL3                     SECOND NUMBER CHAR(3)            00230156
+         DC    CL71' '                 FILLER                           00230256
+*                                                                       00230356
+OUTREC   DC    0CL133                  OUTPUT RECORD                    00230456
+NUM1O    DS    CL3                     FIRST NUMBER CHAR(3)             00230556
+         DC    C' '                                                     00230656
+OPERO    DS    CL1                     OPERATOR CHAR(1)                 00230756
+         DC    C' '                                                     00230856
+NUM2O    DS    CL3                     SECOND NUMBER CHAR(3)            00230956
+         DC    C' = '                                                   00231056
+RESULT   DS    CL07                    RESULT FIELD (0DDDDDD / -DDDDDD) 00231156
+         DC    CL114' '                FILLER                           00231256
+*                                                                       00231356
+*                                                                       00232556
+SAVE     DS    18F           STANDARD SAVE AREA                         00232656
+X        DS    F                                                        00232856
+Y        DS    F                                                        00232956
+Z        DS    F                                                        00233056
+BCD      DS    D             TEMP PACKED DECIMAL                        00233156
+RESULTD  DS    CL6           TEMP UNPACKED RESULT                       00233256
+*                                                                       00233356
+*---------------------------*                                           00233456
+* REGISTER PREFIX DECLARATION                                           00233556
+*---------------------------*                                           00233656
+*                                                                       00233756
+R0       EQU   0             PROGRAM PARAMETERS                         00233856
+R1       EQU   1             TO PASS PARAMETERS TO SUBROUTINES          00233956
+R2       EQU   2             GENERAL PURPOSE                            00234056
+R3       EQU   3             GENERAL PURPOSE                            00234156
+R4       EQU   4             GENERAL PURPOSE                            00234256
+R5       EQU   5             GENERAL PURPOSE                            00234356
+R6       EQU   6             GENERAL PURPOSE                            00234456
+R7       EQU   7             GENERAL PURPOSE                            00234556
+R8       EQU   8             GENERAL PURPOSE                            00234656
+R9       EQU   9             GENERAL PURPOSE                            00234756
+R10      EQU   10            GENERAL PURPOSE                            00234856
+R11      EQU   11            GENERAL PURPOSE                            00234956
+R12      EQU   12            BASE REGISTER FOR ADDRESSING               00235056
+R13      EQU   13            SAVE AREA POINTER                          00235156
+R14      EQU   14            TO STORE THE RETURN ADDRESS                00235256
+R15      EQU   15            TO STORE THE ENTRY POINT ADDRESS           00235356
+*                                                                       00235456
+*----------*                                                            00236056
+* MAIN LOGIC                                                            00240056
+*----------*                                                            00250056
+*                                                                       00260000
+MAIN     OPEN  (INFILE,(INPUT))       OPEN INPUT FILE                   00271056
+         OPEN  (OUTFILE,(OUTPUT))     OPEN OUTPUT FILE                  00271156
+*                                                                       00271240
+READLOOP GET   INFILE,INREC           READ NEXT RECORD                  00271456
+         MVC   NUM1O,NUM1I            MOVE NUM1 TO OUTPUT               00271656
+         MVC   OPERO,OPERI            MOVE OPERATOR TO OUTPUT           00271756
+         MVC   NUM2O,NUM2I            MOVE NUM2 TO OUTPUT               00271856
+* CONVERT NUM1                                                          00271956
+         LA    2,NUM1I                LOAD ADDRESS OF NUM1I TO R2       00272056
+         BAL   14,NUMCONV             CALL NUMCONV                      00272156
+         ST    2,X                    STORE RESULT INTO X               00272256
+* CONVERT NUM2                                                          00272356
+         LA    2,NUM2I                LOAD ADDRESS OF NUM2I TO R2       00272456
+         BAL   14,NUMCONV             CALL NUMCONV                      00272557
+         ST    2,Y                    STORE RESULT INTO Y               00272656
+* CHECK OPERATOR                                                        00272756
+         LA    2,OPERI                LOAD ADDRESS OF OPERATOR          00272856
+         BAL   14,OPCHECK             CALL OPCHECK                      00272956
+         B     READLOOP               BACK TO READ NEXT RECORD          00273056
+*                                                                       00273156
+*-----------------------------------------*                             00273256
+* NUMCONV: CONVERT 3 CHAR NUMERIC TO BINARY                             00273356
+* INPUT: R2 = ADDRESS OF CHAR FIELD                                     00273456
+* OUTPUT: R2 = BINARY VALUE                                             00273556
+*-----------------------------------------*                             00273656
+*                                                                       00273756
+NUMCONV  PACK  BCD,0(2)               CONVERT CHAR TO PACKED DECIMAL    00273856
+         CVB   2,BCD                  CONVERT PACKED TO BINARY IN R2    00273956
+         BR    14                     RETURN                            00274056
+*                                                                       00274156
+*------------------------------------*                                  00274256
+* OPCHECK: BRANCH BASED ON OPERATOR                                     00274356
+* INPUT: R2 = ADDRESS OF OPERATOR CHAR                                  00274456
+*------------------------------------*                                  00274656
+*                                                                       00274756
+OPCHECK  CLI   0(2),C'+'              COMPARE OPERATOR WITH '+'         00274856
+         BE    DOADD                  BRANCH IF ADDITION                00274956
+         CLI   0(2),C'-'              COMPARE OPERATOR WITH '+'         00275056
+         BE    DOSUB                  BRANCH IF SUBTRACTION             00275156
+         B     READLOOP               INVALID OPERATOR, SKIP RECORD     00275256
+*                                                                       00275356
+*----------------*                                                      00275456
+* ADDITION ROUTINE                                                      00275556
+*----------------*                                                      00275656
+*                                                                       00275756
+DOADD    L     3,X                    LOAD NUM1 BINARY TO R3            00275856
+         A     3,Y                    ADD NUM2 BINARY TO R3             00275956
+         ST    3,Z                    STORE RESULT INTO Z               00276056
+         BAL   14,FORMRES             FORMAT RESULT INTO RESULT FIELD   00276156
+         PUT   OUTFILE,OUTREC         WRITE OUTPUT RECORD               00276256
+         B     READLOOP               NEXT INPUT RECORD                 00276356
+*                                                                       00276456
+*-------------------*                                                   00276556
+* SUBTRACTION ROUTINE                                                   00276656
+*-------------------*                                                   00276756
+*                                                                       00276856
+DOSUB    L     3,X                    LOAD NUM1 BINARY TO R3            00276956
+         S     3,Y                    SUBTRACT NUM2 FROM R3             00277056
+         ST    3,Z                    STORE RESULT INTO Z               00277156
+         BAL   14,FORMRES             FORMAT RESULT INTO RESULT FIELD   00277256
+         PUT   OUTFILE,OUTREC         WRITE OUTPUT RECORD               00277356
+         B     READLOOP               NEXT INPUT RECORD                 00277456
+*                                                                       00277556
+*------------------------------------------*                            00277656
+* FORMRES: FORMAT RESULT INTO RESULT FIELD                              00277756
+* 0DDDDDD FOR POSITIVE, -DDDDDD FOR NEGATIVE                            00277856
+*------------------------------------------*                            00277956
+*                                                                       00278056
+FORMRES  L     3,Z                    LOAD RESULT INTO R3               00278156
+         C     3,=F'0'                COMPARE WITH 0                    00278256
+         BL    NEGCASE                BRANCH IF NEGATIVE                00278356
+*                                                                       00278456
+*-------------*                                                         00278556
+* POSITIVE CASE                                                         00278656
+*-------------*                                                         00278756
+*                                                                       00278856
+POSCASE  MVC   RESULT(1),=C'0'        SIGN POSITION = '0'               00278956
+         CVD   3,BCD                  CONVERT BINARY TO PACKED DECIMAL  00279056
+         UNPK  RESULTD,BCD            UNPACK TO CHAR DIGITS             00279156
+         OI    RESULTD+5,X'F0'        FIX LAST BYTE FOR DISPLAY         00279257
+         MVC   RESULT+1(6),RESULTD    MOVE UNPACKED RESULT              00279356
+         BR    14                                                       00279456
+*                                                                       00279556
+*-------------*                                                         00279656
+* NEGATIVE CASE                                                         00279756
+*-------------*                                                         00279856
+*                                                                       00279956
+NEGCASE  MVC   RESULT(1),=C'-'        SIGN POSITION = '-'               00280056
+         LNR   3,3                    MAKE VALUE POSITIVE               00280156
+         CVD   3,BCD                  CONVERT BINARY TO PACKED DECIMAL  00280256
+         UNPK  RESULTD,BCD            UNPACK TO CHAR DIGITS             00280356
+         OI    RESULTD+5,X'F0'        FIX LAST BYTE FOR DISPLAY         00280457
+         MVC   RESULT+1(6),RESULTD    MOVE UNPACKED RESULT              00280556
+         BR    14                                                       00280656
+*                                                                       00280756
+*--------*                                                              00280856
+* EOF EXIT                                                              00280956
+*--------*                                                              00281056
+*                                                                       00281156
+EOFEXIT  CLOSE (INFILE)               CLOSE INPUT FILE                  00281256
+         CLOSE (OUTFILE)              CLOSE OUTPUT FILE                 00281356
+         B     EXIT                   BRANCH TO NORMAL EXIT             00281456
+         CLOSE (INFILE)                                                 00283756
+         CLOSE (OUTFILE)                                                00284056
+*                                                                       00290056
+*-------------*                                                         00410056
+* STANDARD EXIT                                                         00420001
+*-------------*                                                         00430056
+*                                                                       00431001
+EXIT     L     13,SAVE+4               RESTORE BACK-CHAIN SAVE POINTER  00440056
+         RETURN (14,12),RC=0           RESTORE CALLER'S REGS & RETURN   00450000
+         SR    15,15                   RC=0                             00450156
+         BR    14                      RETURN                           00450256
+*                                                                       00450301
+*---*                                                                   01060056
+* END                                                                   01070056
+*---*                                                                   01080056
+*                                                                       01090000
+         END                                                            01100000
+

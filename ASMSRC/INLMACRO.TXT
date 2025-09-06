@@ -1,0 +1,84 @@
+         MACRO                                                          00010000
+&NAME    MOVER &NUM1,&NUM2,&RES                                         00020000
+&NAME    L     2,&NUM1                                                  00030000
+         A     2,&NUM2                                                  00040000
+         ST    2,&RES                                                   00050000
+         MEND                                                           00060000
+INLMACRO CSECT                                                          00070000
+************                                                            00080000
+* READ MSG FROM INPUT DATA STREAM AND DISPLAY INTO OP STREAM *          00090000
+************                                                            00100000
+         STM   14,12,12(13)                                             00110000
+         BALR  12,0                                                     00120000
+         USING *,12                                                     00130000
+         ST    13,SAVE+4                                                00140000
+         LA    13,SAVE                                                  00150000
+****************                                                        00160000
+* OPEN INPUT DATA FILE AND STANDARD PRINTER FILE    *                   00170000
+****************                                                        00180000
+         OPEN  (INFILE1,(INPUT))                                        00190000
+         OPEN  (OUTFILE1,(OUTPUT))                                      00200000
+*******************                                                     00210000
+*      READ AND PRINT EACH RECORD                                       00220000
+*******************                                                     00230000
+         GET   INFILE1,INAREA                                           00240000
+         PACK  BCD,INT1                                                 00250000
+         CVB   5,BCD                                                    00260000
+         ST    5,X                                                      00270000
+         PACK  BCD,INT2                                                 00280000
+         CVB   5,BCD                                                    00290000
+         ST    5,Y                                                      00300000
+**************                                                          00310000
+         MOVER X,Y,Z                                                    00320000
+**************                                                          00330000
+         L     5,Z                                                      00340000
+         CVD   5,BCD                                                    00350000
+         UNPK  SUM,BCD                                                  00360000
+         OI    SUM+9,X'F0'                                              00370000
+         PUT   OUTFILE1,OUTAREA                                         00380000
+*******************                                                     00390000
+         ADD   X,Y,Z                                                    00400000
+**************                                                          00410000
+         L     5,Z                                                      00420000
+         CVD   5,BCD                                                    00430000
+         UNPK  SUM,BCD                                                  00440000
+         OI    SUM+9,X'F0'                                              00450000
+         PUT   OUTFILE1,OUTAREA                                         00460000
+*******************                                                     00480000
+         ADDK  B=Y,A=X,C=Z                                              00490000
+**************                                                          00500000
+         L     5,Z                                                      00510000
+         CVD   5,BCD                                                    00520000
+         UNPK  SUM,BCD                                                  00530000
+         OI    SUM+9,X'F0'                                              00540000
+         PUT   OUTFILE1,OUTAREA                                         00550000
+*******************                                                     00570000
+INEOF    CLOSE (INFILE1)                                                00580000
+         CLOSE (OUTFILE1)                                               00590000
+EXIT     L     13,SAVE+4                                                00600000
+         RETURN (14,12),RC=0                                            00620000
+***************                                                         00630000
+INFILE1  DCB   DSORG=PS,MACRF=(GM),DDNAME=SYSIN,EODAD=INEOF,           *00640000
+               RECFM=FB,LRECL=80,BLKSIZE=800                            00650000
+OUTFILE1 DCB   DSORG=PS,MACRF=(PM),DDNAME=DDOUT,                       *00660000
+               RECFM=FBA,LRECL=133,BLKSIZE=3990                         00670000
+***************                                                         00680000
+INAREA   DS    0CL80                                                    00690000
+INT1     DS    CL3                                                      00710000
+         DS    CL1                                                      00720000
+INT2     DS    CL3                                                      00730000
+         DS    CL73                                                     00740000
+OUTAREA  DS    0CL132                                                   00750000
+         DS    CL7' '                                                   00760000
+         DC    C'YOUR SUM IS '                                          00770000
+SUM      DS    CL10                                                     00780000
+         DC    CL104' '                                                 00790000
+*********                                                               00800000
+BCD      DS    D                                                        00810000
+X        DS    F                                                        00820000
+Y        DS    F                                                        00830000
+Z        DS    F                                                        00840000
+SAVE     DS    18F                                                      00850000
+         YREGS                                                          00851000
+         END                                                            00860000
+

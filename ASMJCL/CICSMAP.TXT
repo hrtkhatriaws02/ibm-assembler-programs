@@ -1,0 +1,12 @@
+//SHRDV15K JOB ,,CLASS=A,                                               00010003
+//         MSGCLASS=H,MSGLEVEL=(1,1),                                   00020000
+//         NOTIFY=&SYSUID                                               00030000
+//JOBPROC  JCLLIB ORDER=IBMUSER.ALL1                                    00040000
+//CICSMAP  EXEC CICSMAP1,                                               00050000
+//         OUTC=*,                                                      00060000
+//         COPYLIB=SHRDV15.CICS.COPYLIB,          -->  BMS MAP LIBRARY  00070003
+//         LOADLIB=CICS.APPLI.LOADLIB,      ** DONT CHANGE **           00080003
+//         MAPNAME=LTLMS00                        -->  MEMBER NAME      00090008
+//COPY.SYSUT1  DD  DSN=SHRDV15.CICS.BMS(LTLMS00), -->BMS SOURCE         00100008
+//         DISP=SHR                                                     00110000
+

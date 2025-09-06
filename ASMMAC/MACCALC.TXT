@@ -1,0 +1,26 @@
+         MACRO                                                          00010000
+         MACCALC &IN1,&IN2,&RES,&CHOICE=                                00020000
+         AIF (N'&SYSLIST EQ 3).CONT                                     00030000
+         MNOTE 8,'SOME PARAMETERS ARE MISSING'                          00040000
+         AGO .END                                                       00050000
+.CONT    ANOP                                                           00060000
+       AIF (T'&IN1 EQ 'F' AND T'&IN2 EQ 'F' AND T'&RES EQ 'F').CONT2    00070000
+         MNOTE 8,'PARAMETER TYPE WRONG'                                 00080000
+         AGO .END                                                       00090000
+.CONT2   ANOP                                                           00100000
+         L   5,&IN1                                                     00110000
+         L   6,&IN2                                                     00120000
+         AIF ('&CHOICE' EQ 'ADD').ADD                                   00130000
+         AIF ('&CHOICE' EQ 'SUB').SUB                                   00140000
+         MNOTE 8,'WRONG CHOICE'                                         00150000
+         AGO .END                                                       00160000
+.ADD     ANOP                                                           00170000
+         AR  5,6                                                        00180000
+         ST  5,&RES                                                     00190000
+         AGO .END                                                       00200000
+.SUB     ANOP                                                           00210000
+         SR  5,6                                                        00220000
+         ST  5,&RES                                                     00230000
+.END     ANOP                                                           00240000
+         MEND                                                           00250000
+

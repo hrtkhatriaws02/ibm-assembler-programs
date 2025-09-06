@@ -1,0 +1,5 @@
+TPGM     CSECT                                                          00010000
+         WTO 'SIMPLE PROGRAM'                                           00020000
+         BR    14                                                       00030000
+         END                                                            00040000
+

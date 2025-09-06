@@ -1,0 +1,84 @@
+PZAP     CSECT                                                          00010000
+****************************************************************        00020000
+*       FUNCTION - COPY PACK DECIMAL TO PACK DECIMAL USING ZAP          00030000
+*       INPUT(S) - NUM1  AND NUM2                                       00040000
+*      OUTPUT(S) - COPY SECOND TO FIRST OPERAND                         00050000
+*          ENTRY - PZAP                                                 00060001
+*          PARMS - NONE                                                 00070000
+* NORMAL EXIT(S) - RETURN TO CALLER X                                   00080000
+* ERROR  EXIT(S) - NONE                                                 00090000
+*    MACROS USED - SAVE, RETURN                                         00100000
+* EXTERNAL CALLS - NONE                                                 00110000
+*     PROGRAMMER - SURESH M N                                           00120000
+****************************************************************        00130000
+* STANDARD LINKAGE FOR A REUSABLE OS/MVS CSECT                          00140000
+****************************************************************        00150000
+         SAVE  (14,12)                 SAVE CALLER'S REGS               00160000
+         BALR  R12,0                   ESTABLISH                        00170000
+         USING *,R12                   ADDRESSABILITY                   00180000
+         LA    R2,SAVEAREA             POINT TO MY LOWER-LEVEL SA       00190000
+         ST    R2,8(,R13)              FORWARD-CHAIN MINE FROM CALLER'S 00200000
+         ST    R13,SAVEAREA+4          BACK-CHAIN CALLER'S FROM MINE    00210000
+         LR    R13,R2                  SET 13 FOR MY SUBROUTINE CALLS   00220000
+*********************** BEGIN LOGIC ****************************        00230000
+*   <======YOUR PROGRAM GOES HERE==========>                            00240000
+         OPEN  (INFILE1,(INPUT))                                        00250000
+         OPEN  (OUTFILE1,(OUTPUT))                                      00260000
+*                                                                       00270000
+***************GET DATA AND CONVERT*****************************        00280000
+*                                                                       00290000
+*********** COMPUTE THE SUM AND STORE INTO Z********************        00300000
+*                                                                       00310000
+         ZAP   X,Y                    COPY    Y TO X                    00320002
+*                                     X=0,  X=X+Y                       00330002
+*************CONVERT TO CHARACTER FORMAT***********************         00340000
+*                                                                       00350000
+         UNPK  SUM,X                                                    00360000
+         OI    SUM+9,X'F0'            ELIMINATE THE SING                00370000
+         PUT   OUTFILE1,OUTAREA                                         00380000
+*                                                                       00390000
+INEOF    CLOSE (INFILE1)                                                00400000
+         CLOSE (OUTFILE1)                                               00410000
+***********************  END LOGIC  ****************************        00420000
+RETURN   DS    0H                      BRANCH TO HERE FOR NORMAL RETURN 00430000
+         L     R13,SAVEAREA+4          POINT TO CALLER'S SAVE AREA      00440000
+         RETURN (14,12),RC=0           RESTORE CALLER'S REGS & RETURN   00450000
+***********************  DATA AREA  ****************************        00460000
+INAREA   DS    0CL80                                                    00470000
+NUM1     DS    CL3                                                      00480000
+         DS    CL1                                                      00490000
+NUM2     DS    CL3                                                      00500000
+         DS    CL73                                                     00510000
+OUTAREA  DS    0CL133                                                   00520000
+         DC    C' X  VALUE  :'                                          00530002
+SUM      DS    CL10                                                     00540000
+         DC    CL101' '                                                 00550000
+*                                                                       00560000
+X        DC    PL3'5'                                                   00570000
+Y        DC    PL2'20'                                                  00580000
+BCD      DS    D                                                        00590000
+*****************************FILE DEFINITON********************         00600000
+INFILE1  DCB   DSORG=PS,MACRF=(GM),DDNAME=DDIN,EODAD=INEOF,            *00610000
+               RECFM=FB,LRECL=80,BLKSIZE=800                            00620000
+OUTFILE1 DCB   DSORG=PS,MACRF=(PM),DDNAME=DDOUT,                       *00630000
+               RECFM=FBA,LRECL=133,BLKSIZE=3990                         00640000
+****************************************************************        00650000
+SAVEAREA DC    18F'0'   AREA FOR CALLEE TO SAVE & RESTORE MY REGS       00660000
+R0       EQU   0                                                        00670000
+R1       EQU   1                                                        00680000
+R2       EQU   2                                                        00690000
+R3       EQU   3                                                        00700000
+R4       EQU   4                                                        00710000
+R5       EQU   5                                                        00720000
+R6       EQU   6                                                        00730000
+R7       EQU   7                                                        00740000
+R8       EQU   8                                                        00750000
+R9       EQU   9                                                        00760000
+R10      EQU   10                                                       00770000
+R11      EQU   11                                                       00780000
+R12      EQU   12                                                       00790000
+R13      EQU   13                                                       00800000
+R14      EQU   14                                                       00810000
+R15      EQU   15                                                       00820000
+         END                                                            00830000
+

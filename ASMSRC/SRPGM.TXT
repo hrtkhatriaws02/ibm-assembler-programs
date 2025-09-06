@@ -1,0 +1,56 @@
+SRPGM    CSECT                                                          00010000
+****************************************************************        00020000
+*       FUNCTION - RECIVE DATA FROM MAIN AND CALCULATE                  00030000
+*       INPUT(S) - X,Y,Z   FROM MAIN(MPGM)                              00040000
+*      OUTPUT(S) - RES  SUM OF TWO NUMBERS AND SEND BACK TO MPGM        00050000
+*          ENTRY - SPGM                                                 00060000
+*          PARMS - X,Y,Z                                                00070000
+* NORMAL EXIT(S) - RETURN TO CALLER X                                   00080000
+* ERROR  EXIT(S) - NONE                                                 00090000
+*    MACROS USED - SAVE, RETURN                                         00100000
+* EXTERNAL CALLS - NONE                                                 00110000
+*     PROGRAMMER - SURESH M N                                           00120000
+****************************************************************        00130000
+* STANDARD LINKAGE FOR A REUSABLE OS/MVS CSECT                          00140000
+****************************************************************        00150000
+         STM   14,12,12(13)                                             00160000
+         BALR  12,0                                                     00170000
+         USING *,12                                                     00180000
+         ST    13,SAVEAREA+4                                            00190000
+         LA    13,SAVEAREA                                              00200000
+*********************** BEGIN LOGIC ****************************        00210000
+         LR    R10,R1                                                   00220000
+         USING SPGMD,R10                                                00230000
+         L     R3,DSX                                                   00240000
+         A     R3,DSY                                                   00250000
+         ST    R3,DSZ                                                   00260000
+***********************  END LOGIC  ****************************        00270000
+RETURN   DS    0H                      BRANCH TO HERE FOR NORMAL RETURN 00280000
+         L     R13,SAVEAREA+4          POINT TO CALLER'S SAVE AREA      00290000
+         RETURN (14,12),RC=4           RESTORE CALLER'S REGS & RETURN   00300002
+***********************  DATA AREA  ****************************        00310000
+*                                                                       00320000
+****************************************************************        00330000
+SAVEAREA DC    18F'0'   AREA FOR CALLEE TO SAVE & RESTORE MY REGS       00340000
+R0       EQU   0                                                        00350000
+R1       EQU   1                                                        00360000
+R2       EQU   2                                                        00370000
+R3       EQU   3                                                        00380000
+R4       EQU   4                                                        00390000
+R5       EQU   5                                                        00400000
+R6       EQU   6                                                        00410000
+R7       EQU   7                                                        00420000
+R8       EQU   8                                                        00430000
+R9       EQU   9                                                        00440000
+R10      EQU   10                                                       00450000
+R11      EQU   11                                                       00460000
+R12      EQU   12                                                       00470000
+R13      EQU   13                                                       00480000
+R14      EQU   14                                                       00490000
+R15      EQU   15                                                       00500000
+SPGMD    DSECT                                                          00510000
+DSX      DS    F                                                        00520000
+DSY      DS    F                                                        00530000
+DSZ      DS    F                                                        00540000
+         END                                                            00550000
+

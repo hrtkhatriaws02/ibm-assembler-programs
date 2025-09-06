@@ -1,0 +1,29 @@
+//SHRDV15J  JOB NOTIFY=&SYSUID                                          00010000
+//PROCLIB   JCLLIB   ORDER=SHRDV15.ASM.PROCLIB                          00020000
+//*-------------------------------------------------------*//           00030000
+//*          ASSEMBLE AND LINKEDIT SUBROUTINE             *//           00040000
+//*-------------------------------------------------------*//           00050000
+//ST1       EXEC PROC=HLASMCL                                           00060000
+//C.SYSIN   DD   DSN=SHRDV15.IBM3.ASMSRC(SRPGM),DISP=SHR                00070000
+//L.SYSLMOD  DD  DSN=SHRDV15.IBM3.ASMLOAD(SRPGM),DISP=SHR               00080000
+//SYSPRINT  DD   SYSOUT=*                                               00090000
+//*-------------------------------------------------------*//           00100000
+//*          ASSEMBLE AND LINKEDIT MAIN PROGRAM           *//           00110000
+//*-------------------------------------------------------*//           00120000
+//ST2       EXEC PROC=HLASMCL                                           00130000
+//C.SYSIN   DD   DSN=SHRDV15.IBM3.ASMSRC(MPGM),DISP=SHR                 00140000
+//L.SYSLIB   DD  DSN=SHRDV15.IBM3.ASMLOAD,DISP=SHR                      00150000
+//L.SYSLMOD  DD  DSN=SHRDV15.IBM3.ASMLOAD(MPGM),DISP=SHR                00160000
+//SYSPRINT  DD   SYSOUT=*                                               00170000
+//*-------------------------------------------------------*//           00180000
+//*          RUN MAIN PROGRAM                             *//           00190000
+//*-------------------------------------------------------*//           00200000
+//ST3       EXEC PGM=MPGM                                               00210000
+//STEPLIB   DD   DSN=SHRDV15.IBM3.ASMLOAD,DISP=SHR                      00220000
+//SYSPRINT  DD   SYSOUT=*                                               00230000
+//DDOUT     DD   SYSOUT=*                                               00240000
+//DDIN      DD   *                                                      00250000
+100 200                                                                 00260000
+/*                                                                      00270000
+//                                                                      00280000
+

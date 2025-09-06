@@ -1,0 +1,35 @@
+//SHRDV15J  JOB NOTIFY=&SYSUID                                          00010000
+//PROCLIB   JCLLIB   ORDER=SHRDV15.ASM.PROCLIB                          00020000
+//*-------------------------------------------------------*//           00030000
+//*          ASSEMBLE AND LINKEDIT SUBROUTINE             *//           00040000
+//*-------------------------------------------------------*//           00050000
+//ST1       EXEC PROC=HLASMCL                                           00060000
+//C.SYSIN   DD   DSN=SHRDV15.IBM3.ASMSRC(MYTCB),DISP=SHR                00070000
+//C.SYSLIB  DD   DSN=SYS1.MACLIB,DISP=SHR                               00071000
+//          DD   DSN=SHRDV15.IBM3.ASMMAC,DISP=SHR                       00072000
+//          DD   DSN=SYS1.MODGEN,DISP=SHR                               00073000
+//L.SYSLMOD  DD  DSN=SHRDV15.IBM3.ASMLOAD(MYTCB),DISP=SHR               00074000
+//SYSPRINT  DD   SYSOUT=*                                               00075000
+//*-------------------------------------------------------*//           00076000
+//*          ASSEMBLE AND LINKEDIT MAIN PROGRAM           *//           00077000
+//*-------------------------------------------------------*//           00078000
+//ST2       EXEC PROC=HLASMCL                                           00079000
+//C.SYSIN   DD   DSN=SHRDV15.IBM3.ASMSRC(ASMXCTL),DISP=SHR              00080000
+//L.SYSLMOD  DD  DSN=SHRDV15.IBM3.ASMLOAD(ASMXCTL),DISP=SHR             00090000
+//SYSPRINT  DD   SYSOUT=*                                               00100000
+//*-------------------------------------------------------*//           00110000
+//*          RUN MAIN PROGRAM                             *//           00120000
+//*-------------------------------------------------------*//           00130000
+//ST3       EXEC PGM=MYTCB                                   RCT        00140000
+//STEPLIB   DD   DSN=SHRDV15.IBM3.ASMLOAD,DISP=SHR           DCT        00150000
+//SYSPRINT  DD   SYSOUT=*                                    STC        00160000
+//SYSOUT    DD   SYSOUT=*                                    INIT       00170000
+//SYSIN     DD   DUMMY                                                  00180000
+//*                                                          RCT        00190000
+//ST4       EXEC PGM=ASMXCTL    --->XCTL  EP=MYTCB           DCT        00200000
+//STEPLIB   DD   DSN=SHRDV15.IBM3.ASMLOAD,DISP=SHR           STC        00210000
+//SYSPRINT  DD   SYSOUT=*                                    INIT       00220000
+//SYSOUT    DD   SYSOUT=*                                               00230000
+//SYSIN     DD   DUMMY                                                  00240000
+//                                                                      00250000
+
